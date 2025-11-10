@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym Class Booking</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Lexend', sans-serif;
+      box-sizing: border-box;
+      min-height: 100%;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    /* Navigation */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      opacity: 0.7;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #2563eb;
+      z-index: 0;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 2rem;
+      max-width: 800px;
+    }
+
+    .hero-headline {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .hero-button {
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .filter-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+    }
+
+    .filter-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    /* Class Grid */
+    .class-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    /* Class Card */
+    .class-card {
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .class-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .class-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .class-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .info-icon {
+      font-size: 1.1rem;
+    }
+
+    .difficulty-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .difficulty-beginner {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .difficulty-intermediate {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .difficulty-advanced {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .totalSpots-remaining {
+      font-weight: 600;
+    }
+
+    .totalSpots-low {
+      color: #dc3545;
+    }
+
+    .book-button {
+      width: 100%;
+      padding: 0.875rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .book-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .book-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .book-button.booked {
+      background-color: #28a745 !important;
+      color: white;
+    }
+
+    .book-button.booked:hover {
+      background-color: #218838 !important;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: 400px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast-error {
+      background: #dc3545;
+      color: white;
+    }
+
+    .toast-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .toast-icon {
+      font-size: 1.5rem;
+    }
+
+    .toast-message {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast-close:hover {
+      opacity: 1;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .hero {
+        height: 400px;
+      }
+
+      .hero-headline {
+        font-size: 2.5rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+      }
+
+      .class-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-bar {
+        flex-direction: column;
+      }
+
+      .toast {
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .navbar {
+        padding: 1rem;
+      }
+
+      .hero-headline {
+        font-size: 2rem;
+      }
+
+      .main-content {
+        padding: 2rem 1rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- Navigation -->
+  <nav class="navbar" id="navbar">
+   <div class="logo" id="logo">
+    💪 FitHub
+   </div>
+   <ul class="nav-links">
+    <li><a href="#home" id="nav-home">Home</a></li>
+    <li><a href="#classes" id="nav-classes">Classes</a></li>
+    <li><a href="#trainers" id="nav-trainers">Trainers</a></li>
+    <li><a href="#membership" id="nav-membership">Membership</a></li>
+    <li><a href="#contact" id="nav-contact">Contact</a></li>
+   </ul><button class="mobile-menu-btn">☰</button>
+  </nav><!-- Hero Section -->
+  <section class="hero">
+   <div class="hero-background"></div>
+   <div class="hero-overlay"></div>
+   <div class="hero-content">
+    <h1 class="hero-headline" id="hero-headline">Transform Your Body, Elevate Your Mind</h1><button class="hero-button" id="hero-button">Book a Class</button>
+   </div>
+  </section><!-- Main Content -->
+  <main class="main-content">
+   <h2 class="section-title" id="schedule-title">Class Schedule</h2><!-- Filter Bar -->
+   <div class="filter-bar" id="filter-bar">
+    <div class="filter-group"><label for="date-filter">Date</label> <select id="date-filter"> <option value="all">All Dates</option> <option value="today">Today</option> <option value="tomorrow">Tomorrow</option> <option value="this-week">This Week</option> </select>
+    </div>
+    <div class="filter-group"><label for="time-filter">Time</label> <select id="time-filter"> <option value="all">All Times</option> <option value="morning">Morning (6AM-12PM)</option> <option value="afternoon">Afternoon (12PM-6PM)</option> <option value="evening">Evening (6PM-10PM)</option> </select>
+    </div>
+    <div class="filter-group"><label for="type-filter">Class Type</label> <select id="type-filter"> <option value="all">All Classes</option> <option value="yoga">Yoga</option> <option value="hiit">HIIT</option> <option value="spin">Spin</option> <option value="strength">Strength Training</option> <option value="pilates">Pilates</option> </select>
+    </div>
+   </div><!-- Class Grid -->
+   <div class="class-grid" id="class-grid"></div>
+  </main>
+  <script>
+    const defaultConfig = {
+      background_color: "#ffffff",
+      surface_color: "#f8f9fa",
+      text_color: "#212529",
+      primary_action_color: "#667eea",
+      secondary_action_color: "#495057",
+      hero_headline: "Transform Your Body, Elevate Your Mind",
+      hero_button_text: "Book a Class",
+      schedule_title: "Class Schedule",
+      font_family: "Lexend",
+      font_size: 16
+    };
+
+    const classes = [
+      {
+        id: 1,
+        name: "Power Yoga Flow",
+        date: "Today",
+        time: "9:00 AM",
+        duration: 30,
+        trainer: "Sarah Johnson",
+        difficulty: "intermediate",
+        totalSpots: 3,
+        takenSpots: 0,
+        type: "yoga",
+        isBooked: false
+      },
+      {
+        id: 2,
+        name: "HIIT Bootcamp",
+        date: "Today",
+        time: "6:00 PM",
+        duration: 30,
+        trainer: "Mike Chen",
+        difficulty: "advanced",
+        totalSpots: 0,
+        takenSpots: 0,
+        type: "hiit",
+        isBooked: false
+      },
+      {
+        id: 3,
+        name: "Spin & Burn",
+        date: "Tomorrow",
+        time: "7:00 AM",
+        duration: 30,
+        trainer: "Emma Davis",
+        difficulty: "intermediate",
+        totalSpots: 8,
+        takenSpots: 0,
+        type: "spin",
+        isBooked: false
+      },
+      {
+        id: 4,
+        name: "Beginner Strength",
+        date: "Tomorrow",
+        time: "10:00 AM",
+        duration: 30,
+        trainer: "James Wilson",
+        difficulty: "beginner",
+        totalSpots: 12,
+        takenSpots: 0,
+        type: "strength",
+        isBooked: false
+      },
+      {
+        id: 5,
+        name: "Pilates Core",
+        date: "Today",
+        time: "5:00 PM",
+        duration: 30,
+        trainer: "Lisa Martinez",
+        difficulty: "beginner",
+        totalSpots: 5,
+        takenSpots: 0,
+        type: "pilates",
+        isBooked: false
+      },
+      {
+        id: 6,
+        name: "Advanced HIIT",
+        date: "Tomorrow",
+        time: "6:30 PM",
+        duration: 30,
+        trainer: "Mike Chen",
+        difficulty: "advanced",
+        totalSpots: 2,
+        takenSpots: 0,
+        type: "hiit",
+        isBooked: false
+      },
+      {
+        id: 7,
+        name: "Morning Yoga",
+        date: "Today",
+        time: "6:30 AM",
+        duration: 30,
+        trainer: "Sarah Johnson",
+        difficulty: "beginner",
+        totalSpots: 15,
+        takenSpots: 0,
+        type: "yoga",
+        isBooked: false
+      },
+      {
+        id: 8,
+        name: "Cardio Blast",
+        date: "Today",
+        time: "12:00 PM",
+        duration: 30,
+        trainer: "Alex Rodriguez",
+        difficulty: "intermediate",
+        totalSpots: 6,
+        takenSpots: 0,
+        type: "hiit",
+        isBooked: false
+      },
+      {
+        id: 9,
+        name: "Strength & Conditioning",
+        date: "Today",
+        time: "7:30 PM",
+        duration: 30,
+        trainer: "James Wilson",
+        difficulty: "advanced",
+        totalSpots: 4,
+        takenSpots: 0,
+        type: "strength",
+        isBooked: false
+      },
+      {
+        id: 10,
+        name: "Gentle Pilates",
+        date: "Tomorrow",
+        time: "8:00 AM",
+        duration: 30,
+        trainer: "Lisa Martinez",
+        difficulty: "beginner",
+        totalSpots: 10,
+        takenSpots: 0,
+        type: "pilates",
+        isBooked: false
+      },
+      {
+        id: 11,
+        name: "Spin Revolution",
+        date: "Tomorrow",
+        time: "12:30 PM",
+        duration: 30,
+        trainer: "Emma Davis",
+        difficulty: "advanced",
+        totalSpots: 1,
+        takenSpots: 0,
+        type: "spin",
+        isBooked: false
+      },
+      {
+        id: 12,
+        name: "Vinyasa Flow",
+        date: "Tomorrow",
+        time: "5:30 PM",
+        duration: 30,
+        trainer: "Maya Patel",
+        difficulty: "intermediate",
+        totalSpots: 7,
+        takenSpots: 0,
+        type: "yoga",
+        isBooked: false
+      },
+      {
+        id: 13,
+        name: "Functional Fitness",
+        date: "Today",
+        time: "11:00 AM",
+        duration: 30,
+        trainer: "Carlos Santos",
+        difficulty: "intermediate",
+        totalSpots: 9,
+        takenSpots: 0,
+        type: "strength",
+        isBooked: false
+      },
+      {
+        id: 14,
+        name: "HIIT Express",
+        date: "Today",
+        time: "1:00 PM",
+        duration: 30,
+        trainer: "Alex Rodriguez",
+        difficulty: "beginner",
+        totalSpots: 14,
+        takenSpots: 0,
+        type: "hiit",
+        isBooked: false
+      },
+      {
+        id: 15,
+        name: "Power Pilates",
+        date: "Tomorrow",
+        time: "9:30 AM",
+        duration: 30,
+        trainer: "Rachel Kim",
+        difficulty: "advanced",
+        totalSpots: 3,
+        takenSpots: 0,
+        type: "pilates",
+        isBooked: false
+      },
+      {
+        id: 16,
+        name: "Cycle Fusion",
+        date: "Today",
+        time: "8:00 PM",
+        duration: 30,
+        trainer: "Emma Davis",
+        difficulty: "intermediate",
+        totalSpots: 0,
+        takenSpots: 0,
+        type: "spin",
+        isBooked: false
+      },
+      {
+        id: 17,
+        name: "Restorative Yoga",
+        date: "Tomorrow",
+        time: "7:00 PM",
+        duration: 30,
+        trainer: "Maya Patel",
+        difficulty: "beginner",
+        totalSpots: 12,
+        takenSpots: 0,
+        type: "yoga",
+        isBooked: false
+      },
+      {
+        id: 18,
+        name: "CrossFit Basics",
+        date: "Tomorrow",
+        time: "11:00 AM",
+        duration: 30,
+        trainer: "Carlos Santos",
+        difficulty: "beginner",
+        totalSpots: 8,
+        takenSpots: 0,
+        type: "strength",
+        isBooked: false
+      },
+      {
+        id: 19,
+        name: "Tabata Training",
+        date: "Today",
+        time: "3:00 PM",
+        duration: 30,
+        trainer: "Mike Chen",
+        difficulty: "advanced",
+        totalSpots: 5,
+        takenSpots: 0,
+        type: "hiit",
+        isBooked: false
+      },
+      {
+        id: 20,
+        name: "Mat Pilates",
+        date: "Tomorrow",
+        time: "4:00 PM",
+        duration: 30,
+        trainer: "Rachel Kim",
+        difficulty: "intermediate",
+        totalSpots: 6,
+        takenSpots: 0,
+        type: "pilates",
+        isBooked: false
+      }
+    ];
+
+    let filteredClasses = [...classes];
+
+    function renderClasses() {
+      const grid = document.getElementById('class-grid');
+      grid.innerHTML = '';
+
+      filteredClasses.forEach(classItem => {
+        const card = document.createElement('div');
+        card.className = 'class-card';
+        card.style.backgroundColor = window.elementSdk?.config?.surface_color || defaultConfig.surface_color;
+
+        const difficultyClass = `difficulty-${classItem.difficulty}`;
+        const totalSpotsClass = classItem.totalSpots <= 3 && classItem.totalSpots > 0 ? 'totalSpots-low' : '';
+        const isFullClass = classItem.totalSpots === 0;
+
+        card.innerHTML = `
+          <h3 class="class-name" style="color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color}">${classItem.name}</h3>
+          <div class="class-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span style="color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color}">${classItem.date} at ${classItem.time}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-icon">👤</span>
+              <span style="color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color}">${classItem.trainer}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-icon">💪</span>
+              <span class="difficulty-badge ${difficultyClass}">${classItem.difficulty.charAt(0).toUpperCase() + classItem.difficulty.slice(1)}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-icon">🎯</span>
+              <span class="totalSpots-remaining ${totalSpotsClass}" style="color: ${totalSpotsClass ? '#dc3545' : (window.elementSdk?.config?.text_color || defaultConfig.text_color)}">
+                ${isFullClass ? 'Class Full' : `${classItem.totalSpots} totalSpots remaining`}
+              </span>
+            </div>
+          </div>
+          <button class="book-button ${classItem.isBooked ? 'booked' : ''}" ${isFullClass && !classItem.isBooked ? 'disabled' : ''} data-class-id="${classItem.id}" style="background-color: ${classItem.isBooked ? '#28a745' : (window.elementSdk?.config?.primary_action_color || defaultConfig.primary_action_color)}; color: white;">
+            ${isFullClass && !classItem.isBooked ? 'Fully Booked' : (classItem.isBooked ? 'Booked' : 'Book Now')}
+          </button>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      // Add event listeners to book buttons
+      document.querySelectorAll('.book-button').forEach(button => {
+        button.addEventListener('click', handleBooking);
+      });
+    }
+
+    function handleBooking(event) {
+      const classId = parseInt(event.target.dataset.classId);
+      const classItem = classes.find(c => c.id === classId);
+
+      if (classItem.isBooked) {
+        // Unbook the class
+        classItem.isBooked = false;
+        classItem.totalSpots += 1;
+        filteredClasses = filteredClasses.map(c => c.id === classId ? classItem : c);
+        renderClasses();
+        showToast('success', `Successfully unbooked ${classItem.name}!`);
+      } else if (classItem.totalSpots === 0) {
+        showToast('error', 'Error: This class is full. Please choose another time.');
+      } else {
+        // Book the class
+        classItem.isBooked = true;
+        classItem.totalSpots -= 1;
+        filteredClasses = filteredClasses.map(c => c.id === classId ? classItem : c);
+        renderClasses();
+        showToast('success', `Successfully booked ${classItem.name}!`);
+      }
+    }
+
+    function showToast(type, message) {
+      const existingToast = document.querySelector('.toast');
+      if (existingToast) {
+        existingToast.remove();
+      }
+
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `
+        <span class="toast-icon">${type === 'error' ? '❌' : '✅'}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close">×</button>
+      `;
+
+      document.body.appendChild(toast);
+
+      toast.querySelector('.toast-close').addEventListener('click', () => {
+        toast.remove();
+      });
+
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.remove();
+        }
+      }, 5000);
+    }
+
+    function applyFilters() {
+      const dateFilter = document.getElementById('date-filter').value;
+      const timeFilter = document.getElementById('time-filter').value;
+      const typeFilter = document.getElementById('type-filter').value;
+
+      filteredClasses = classes.filter(classItem => {
+        let matchesDate = true;
+        let matchesTime = true;
+        let matchesType = true;
+
+        if (dateFilter !== 'all') {
+          if (dateFilter === 'today') matchesDate = classItem.date === 'Today';
+          if (dateFilter === 'tomorrow') matchesDate = classItem.date === 'Tomorrow';
+        }
+
+        if (timeFilter !== 'all') {
+          const hour = parseInt(classItem.time.split(':')[0]);
+          const isPM = classItem.time.includes('PM');
+          const hour24 = isPM && hour !== 12 ? hour + 12 : hour;
+
+          if (timeFilter === 'morning') matchesTime = hour24 >= 6 && hour24 < 12;
+          if (timeFilter === 'afternoon') matchesTime = hour24 >= 12 && hour24 < 18;
+          if (timeFilter === 'evening') matchesTime = hour24 >= 18;
+        }
+
+        if (typeFilter !== 'all') {
+          matchesType = classItem.type === typeFilter;
+        }
+
+        return matchesDate && matchesTime && matchesType;
+      });
+
+      renderClasses();
+    }
+
+    document.getElementById('date-filter').addEventListener('change', applyFilters);
+    document.getElementById('time-filter').addEventListener('change', applyFilters);
+    document.getElementById('type-filter').addEventListener('change', applyFilters);
+
+    document.getElementById('hero-button').addEventListener('click', () => {
+      document.getElementById('schedule-title').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    async function onConfigChange(config) {
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'sans-serif';
+      const baseSize = config.font_size || defaultConfig.font_size;
+
+      document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      document.body.style.fontSize = `${baseSize}px`;
+
+      const navbar = document.getElementById('navbar');
+      navbar.style.backgroundColor = config.surface_color || defaultConfig.surface_color;
+
+      const logo = document.getElementById('logo');
+      logo.style.color = config.text_color || defaultConfig.text_color;
+      logo.style.fontSize = `${baseSize * 1.5}px`;
+
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        link.style.color = config.secondary_action_color || defaultConfig.secondary_action_color;
+        link.style.fontSize = `${baseSize}px`;
+      });
+
+      const heroHeadline = document.getElementById('hero-headline');
+      heroHeadline.textContent = config.hero_headline || defaultConfig.hero_headline;
+      heroHeadline.style.color = 'white';
+      heroHeadline.style.fontSize = `${baseSize * 2.2}px`;
+
+      const heroButton = document.getElementById('hero-button');
+      heroButton.textContent = config.hero_button_text || defaultConfig.hero_button_text;
+      heroButton.style.backgroundColor = config.primary_action_color || defaultConfig.primary_action_color;
+      heroButton.style.color = 'white';
+      heroButton.style.fontSize = `${baseSize * 1.1}px`;
+
+      const scheduleTitle = document.getElementById('schedule-title');
+      scheduleTitle.textContent = config.schedule_title || defaultConfig.schedule_title;
+      scheduleTitle.style.color = config.text_color || defaultConfig.text_color;
+      scheduleTitle.style.fontSize = `${baseSize * 2.5}px`;
+
+      const filterBar = document.getElementById('filter-bar');
+      filterBar.style.backgroundColor = config.surface_color || defaultConfig.surface_color;
+
+      const filterLabels = document.querySelectorAll('.filter-group label');
+      filterLabels.forEach(label => {
+        label.style.color = config.text_color || defaultConfig.text_color;
+        label.style.fontSize = `${baseSize * 0.9}px`;
+      });
+
+      const filterSelects = document.querySelectorAll('.filter-group select');
+      filterSelects.forEach(select => {
+        select.style.fontSize = `${baseSize}px`;
+      });
+
+      renderClasses();
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (value) => {
+                config.surface_color = value;
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.primary_action_color || defaultConfig.primary_action_color,
+              set: (value) => {
+                config.primary_action_color = value;
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+              set: (value) => {
+                config.secondary_action_color = value;
+                window.elementSdk.setConfig({ secondary_action_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["hero_headline", config.hero_headline || defaultConfig.hero_headline],
+          ["hero_button_text", config.hero_button_text || defaultConfig.hero_button_text],
+          ["schedule_title", config.schedule_title || defaultConfig.schedule_title]
+        ])
+      });
+    }
+
+    renderClasses();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99c8c82c46cca31d',t:'MTc2MjgxMTU5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
