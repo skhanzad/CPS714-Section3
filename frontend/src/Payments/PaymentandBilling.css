@@ -8,6 +8,11 @@
   color: #666;
 }
 
+.card-layout {
+  display: flex;  
+  flex-wrap: wrap; 
+  gap: 15px;     
+}
 
 .billing-card {
   border: 1px solid #e0e0e0;
