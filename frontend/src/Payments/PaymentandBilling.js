@@ -21,28 +21,24 @@ export default function PaymentAndBilling() {
       <p className="subtitle">Manage your payments, subscriptions, and billing history</p>
       
       <div className="card-layout">
-        // Card 1: Current Balance 
         <div className="billing-card">
           <span className="card-title">Current Balance</span>
           <div className="card-main-value">{billingData.currentBalance}</div>
           <div className="card-sub-value">{billingData.balanceStatus}</div>
         </div>
 
-        // Card 2: Next Payment
         <div className="billing-card">
           <span className="card-title">Next Payment</span>
           <div className="card-main-value">{billingData.nextPaymentAmount}</div>
           <div className="card-sub-value">{billingData.nextPaymentDate}</div>
         </div>
 
-        // Card 3: Active Subscription
         <div className="billing-card">
           <span className="card-title">Active Subscription</span>
           <div className="card-main-value">{billingData.activeSubscription}</div>
           <div className="card-sub-value">{billingData.subscriptionType}</div>
         </div>
 
-        // Card 4: Total Paid
         <div className="billing-card">
           <span className="card-title">Total Paid (2025)</span>
           <div className="card-main-value">{billingData.totalPaid}</div>
