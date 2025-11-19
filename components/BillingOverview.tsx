@@ -12,20 +12,20 @@ interface StatCardProps {
 
 function StatCard({ title, value, subtitle, trend }: StatCardProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all ease-out duration-200 hover:shadow-md">
-      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition-all ease-out duration-200 hover:shadow-md">
+      <p className="text-sm font-medium text-gray-600 mb-2">
         {title}
       </p>
       <div className="flex items-baseline justify-between">
-        <p className="text-3xl font-bold text-gray-900 dark:text-white">
+        <p className="text-3xl font-semibold text-gray-900">
           {value}
         </p>
         {trend && (
           <span
             className={`text-sm font-medium ${
               trend.isPositive
-                ? "text-green-600 dark:text-green-400"
-                : "text-red-600 dark:text-red-400"
+                ? "text-green-600"
+                : "text-red-600"
             }`}
           >
             {trend.isPositive ? "↑" : "↓"} {trend.value}
@@ -33,7 +33,7 @@ function StatCard({ title, value, subtitle, trend }: StatCardProps) {
         )}
       </div>
       {subtitle && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+        <p className="text-sm text-gray-600 mt-2">
           {subtitle}
         </p>
       )}
@@ -75,8 +75,8 @@ export default function BillingOverview() {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Recent Activity
         </h2>
         <div className="space-y-4">
@@ -102,21 +102,21 @@ export default function BillingOverview() {
           ].map((activity, index) => (
             <div
               key={index}
-              className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
+              className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
             >
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                <p className="text-sm font-medium text-gray-900">
                   {activity.description}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   {activity.date}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                <p className="text-sm font-medium text-gray-900">
                   {activity.amount}
                 </p>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   {activity.status}
                 </span>
               </div>
