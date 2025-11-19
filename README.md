@@ -1,35 +1,36 @@
-# CPS714-Section3
+# FitHub — Member Portal
 
-This is the branch of team4, which will handle the financial side of FitHub - a billing dashboard for a fitness center with Stripe integration.
+Luxury fitness onboarding for Peak Performance Gym.
 
 ## Getting Started
 
 1. Install dependencies:
-```bash
-npm install
-```
 
-2. Set up environment variables:
-Create a `.env.local` file with your Stripe keys:
-```
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-```
+   ```bash
+   npm install
+   ```
 
-3. Run the development server:
-```bash
-npm run dev
-```
+2. Create a Supabase project and copy the Project URL and anon public key.
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+3. Create a `.env.local` at the project root and add:
 
-## Features
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=your-url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   ```
+4. Replace your-url and your-anon-key with project api creds. 
+you will find the url and anon key in api settings in supabase, which you can access as the member of the org. 
 
-- 💳 **Billing Overview** - Dashboard with current balance, next payment, and subscription status
-- 📦 **Subscription Plans** - Browse and subscribe to Basic, Premium, and Elite plans
-- 💳 **Payment Methods** - Manage payment methods and cards
-- 📊 **Transaction History** - View detailed transaction history
-- 🔒 **Stripe Integration** - Secure payment processing with Stripe Checkout
+5. Start the dev server:
+
+   ```bash
+   npm run dev
+   ```
+
+Open `http://localhost:3000` in your browser.
+
+### Auth Flow IMPORTANT NOTE: 
+- email confirmations are enabled (default), the app will prompt the user to verify their email first. After they confirm and log in, the dashboard ensures the profile and membership tables are populated from the stored metadata.
+- The dashboard at `/dashboard` shows the logged-in user’s profile, membership tier, and gives a sign-out button so members can confirm their session state quickly.
+
 

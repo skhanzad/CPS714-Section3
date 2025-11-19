@@ -1,26 +1,28 @@
+// app/layout.tsx
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Toaster } from "sonner";
 import "./globals.css";
+import { Montserrat } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
 
 export const metadata: Metadata = {
-    title: "FitHub Billing Dashboard",
-    description: "Billing and payment management for FitHub fitness center",
+  title: "FitHub — Member Portal",
+  description: "Luxury fitness onboarding for Peak Performance Gym",
 };
 
 export default function RootLayout({
-    children,
-}: Readonly<{
-    children: React.ReactNode;
-}>) {
-    return (
-        <html lang="en">
-            <body className={inter.className}>
-                {children}
-                <Toaster position="bottom-right" richColors />
-            </body>
-        </html>
-    );
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={`${montserrat.className} bg-[#0A1128] text-white`}>
+        {children}
+      </body>
+    </html>
+  );
 }
