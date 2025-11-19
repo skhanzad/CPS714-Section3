@@ -54,3 +54,16 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .button-squircle {
+    border-radius: 1.5rem;
+    corner-shape: squircle;
+  }
+  
+  @supports not (corner-shape: squircle) {
+    .button-squircle {
+      border-radius: 1.5rem;
+    }
+  }
+}

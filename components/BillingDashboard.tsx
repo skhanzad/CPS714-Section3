@@ -5,13 +5,39 @@ import BillingOverview from "./BillingOverview";
 import PaymentMethods from "./PaymentMethods";
 import SubscriptionPlans from "./SubscriptionPlans";
 import TransactionHistory from "./TransactionHistory";
+import Topbar from "./Topbar";
 
 export default function BillingDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "plans" | "methods" | "history">("overview");
 
+  const getBreadcrumbs = () => {
+    const tabLabels: Record<typeof activeTab, string> = {
+      overview: "Overview",
+      plans: "Subscription Plans",
+      methods: "Payment Methods",
+      history: "Transaction History",
+    };
+    return [
+      { label: "Billing Dashboard" },
+      { label: tabLabels[activeTab] },
+    ];
+  };
+
+  const handlePrimaryAction = () => {
+    // Primary action handler - can be customized
+    console.log("Primary action clicked");
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
-      <header className="mb-8">
+      <Topbar
+        breadcrumbs={getBreadcrumbs()}
+        onPrimaryAction={handlePrimaryAction}
+        primaryActionLabel="New Payment"
+        notificationCount={3}
+        userName="John Doe"
+      />
+      <header className="mb-8 mt-8">
         <h1 className="text-4xl font-semibold text-gray-900 mb-2">
           Billing Dashboard
         </h1>
