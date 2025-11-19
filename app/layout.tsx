@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";   
+import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "FitHub Billing Dashboard",
-  description: "Billing and payment management for FitHub fitness center",
+    title: "FitHub Billing Dashboard",
+    description: "Billing and payment management for FitHub fitness center",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
-  );
+    return (
+        <html lang="en">
+            <body className={inter.className}>
+                {children}
+                <Toaster position="top-right" />
+            </body>
+        </html>
+    );
 }
