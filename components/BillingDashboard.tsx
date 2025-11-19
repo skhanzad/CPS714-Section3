@@ -29,7 +29,7 @@ export default function BillingDashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full">
       <Topbar
         breadcrumbs={getBreadcrumbs()}
         onPrimaryAction={handlePrimaryAction}
@@ -37,7 +37,7 @@ export default function BillingDashboard() {
         notificationCount={3}
         userName="John Doe"
       />
-      <header className="mb-8 mt-8">
+      <header className="mb-8">
         <h1 className="text-4xl font-semibold text-gray-900 mb-2">
           Billing Dashboard
         </h1>

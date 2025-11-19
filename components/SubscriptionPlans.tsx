@@ -118,11 +118,16 @@ export default function SubscriptionPlans() {
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`relative bg-white rounded-lg shadow-sm border-2 p-6 transition-all ease-out duration-200 hover:shadow-lg ${
+            className={`relative bg-white rounded-lg shadow-md border-2 p-6 transition-all ease-out duration-200 hover:shadow-lg button-squircle ${
               plan.popular
-                ? "border-blue-500"
+                ? "border-blue-500 shadow-blue-500/20"
                 : "border-gray-200"
             } ${plan.current ? "ring-2 ring-blue-200" : ""}`}
+            style={{
+              boxShadow: plan.popular
+                ? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)"
+                : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            }}
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -181,12 +186,12 @@ export default function SubscriptionPlans() {
               <DialogTrigger asChild>
                 <button
                   disabled={plan.current || loading}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ease ${
+                  className={`w-full py-3 px-4 font-medium transition-colors ease button-squircle shadow-md ${
                     plan.current
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                       : plan.popular
-                      ? "bg-blue-500 text-white hover:bg-blue-600"
-                      : "bg-gray-900 text-white hover:bg-gray-800"
+                      ? "bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg"
+                      : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg"
                   }`}
                   style={{
                     transitionDuration: "200ms",

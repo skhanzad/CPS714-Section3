@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { CreditCardIcon } from "@hugeicons/core-free-icons";
 import {
   Dialog,
   DialogContent,
@@ -80,15 +82,6 @@ export default function PaymentMethods() {
     setAddDialogOpen(false);
   };
 
-  const getCardBrandIcon = (brand: string) => {
-    const icons: Record<string, string> = {
-      visa: "💳",
-      mastercard: "💳",
-      amex: "💳",
-      discover: "💳",
-    };
-    return icons[brand] || "💳";
-  };
 
   return (
     <div>
@@ -154,7 +147,9 @@ export default function PaymentMethods() {
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between"
           >
             <div className="flex items-center space-x-4">
-              <div className="text-4xl">{getCardBrandIcon(method.brand)}</div>
+              <div className="text-gray-400">
+                <HugeiconsIcon icon={CreditCardIcon} size={48} color="currentColor" strokeWidth={1.5} />
+              </div>
               <div>
                 <div className="flex items-center space-x-2">
                   <p className="text-lg font-medium text-gray-900 capitalize">
