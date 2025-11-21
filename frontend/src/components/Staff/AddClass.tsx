@@ -62,8 +62,11 @@ const AddClassModal = ({ onClose, refreshClasses }: { onClose: () => void, refre
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-slate-200 rounded-xl border-8 border-slate-700 p-6 max-w-md w-full m-4">
-        <h3 className="text-xl font-bold text-slate-800 mb-4">Schedule New Class</h3>
+        <div className="bg-slate-200 rounded-xl border-8 border-slate-700 p-6 max-w-md w-full m-4 max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-bold text-slate-800 mb-4">Schedule New Class</h3>
+            <button onClick={onClose} className="text-black text-xl">x</button>
+          </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-yellow-600 mb-2">Class</label>
