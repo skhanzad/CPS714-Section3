@@ -45,6 +45,10 @@
     .button-header {
         @apply rounded-lg text-sm font-semibold;
     }
+
+    .button-header {
+        @apply rounded-lg text-sm font-semibold
+    }
 }
 
 
