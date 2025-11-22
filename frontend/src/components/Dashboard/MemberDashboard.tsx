@@ -15,11 +15,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  User,
-  Bell,
-  LogOut,
-} from 'lucide-react';
+import { User, Bell, LogOut } from 'lucide-react';
 import { GiBiceps } from 'react-icons/gi';
 import { FaDumbbell } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
@@ -46,6 +42,8 @@ export const MemberDashboard = () => {
   const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [myProfile, setMyProfile] = useState<ProfileWithSubscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const HARDCODED_USER_ID = 'b41c76d2-0e38-4dec-8825-b10a0b841664';
+
 
   useEffect(() => {
     if (showProfileMenu && profileButtonRef.current) {
@@ -57,27 +55,25 @@ export const MemberDashboard = () => {
   }, [showProfileMenu]);
 
   useEffect(() => {
-    const HARDCODED_USER_ID = 'b41c76d2-0e38-4dec-8825-b10a0b841664';
-
-    const fetchProfileData = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*, membership_subscriptions(*, membership_tiers(*))')
-          .eq('id', HARDCODED_USER_ID)
-          .single();
-
-        if (error) throw error;
-
-        setMyProfile(data);
-      } catch (error: any) {
-        console.error('Error fetching profile:', error.message);
-      }
-      setLoading(false);
-    };
-    fetchProfileData();
+    fetchProfileData(HARDCODED_USER_ID);
   }, []);
+  
+  const fetchProfileData = async (userID: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*, membership_subscriptions(*, membership_tiers(*))')
+        .eq('id', userID)
+        .single();
 
+      if (error) throw error;
+
+      setMyProfile(data);
+    } catch (error: any) {
+      console.error('Error fetching profile:', error.message);
+    }
+    setLoading(false);
+    };
 
   /* User data */
   const subscription = myProfile?.membership_subscriptions?.[0];
@@ -108,12 +104,12 @@ export const MemberDashboard = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-900 overflow-hidden">
       {/* Top Banner */}
-      <header className="bg-gray-800/95 border-b border-gray-700/50 backdrop-blur-md shadow-lg">
+      <header className="bg-gray-800/95">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {/* FITHUB LOGO */}
-              <div className="bg-gold-500/90 p-2 rounded-lg shadow-md transition-all duration-300">
+              <div className="bg-gold-500/90 p-2 rounded-lg">
                 <FaDumbbell className="w-6 h-6 text-gray-900" />
               </div>
               <span className="text-xl font-bold text-gold-400 tracking-tight">FitHub</span>
@@ -124,9 +120,9 @@ export const MemberDashboard = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === 'dashboard'
+                  className={`p-button rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === 'dashboard'
                     ? 'bg-gold-500/90 text-gray-900 shadow-lg'
-                    : 'text-gray-300 hover:bg-gray-700/50 hover:text-gold-400'
+                    : 'general-button-hover'
                     }`}
                 >
                   <GiBiceps className="w-4 h-4 inline mr-1" />
@@ -135,9 +131,9 @@ export const MemberDashboard = () => {
                 {/* Send to the profile editor */}
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === 'profile'
+                  className={`p-button rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === 'profile'
                     ? 'bg-gold-500/90 text-gray-900 shadow-lg'
-                    : 'text-gray-300 hover:bg-gray-700/50 hover:text-gold-400'
+                    : 'general-button-hover'
                     }`}
                 >
                   <User className="w-4 h-4 inline mr-1" />
@@ -153,7 +149,7 @@ export const MemberDashboard = () => {
                   className="relative p-2 text-gray-400 hover:text-gold-400 transition-all duration-200 hover:bg-gray-700/50 rounded-lg">
                   <Bell className="w-5 h-5" />
                   {notifications.length > 0 && (
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-gold-500 rounded-full animate-pulse-gold shadow-lg shadow-gold-500/50"></span>
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-gold-500 rounded-full shadow-lg shadow-gold-500/50"></span>
                   )}
                 </button>
 
@@ -171,11 +167,11 @@ export const MemberDashboard = () => {
                   ref={(el) => (profileButtonRef.current = el)}
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   onBlur={() => setShowProfileMenu(false)} // This keeps previous behaviour; portal positioning will prevent clipping
-                  className="w-10 h-10 bg-gold-500/90 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm shadow-md hover:shadow-gold-500/30 transition-all duration-300 hover:scale-105 overflow-hidden"
+                  className="w-10 h-10 bg-gold-500/90 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm transition-all duration-300 hover:scale-105 hover:border-2 hover:border-gold-500/90 border border-gold-500/70 overflow-hidden"
                 >
                   {/* If a profile picture is defined then use it */}
                   {profile_picture ? (
-                    <img src={profile_picture} className="w-full h-full object-cover" />
+                    <img src={profile_picture} className="w-full h-full" />
                   ) : (
                     <span>{initials}</span>
                   )}
@@ -183,7 +179,7 @@ export const MemberDashboard = () => {
 
                 {showProfileMenu && profileButtonRef.current && createPortal(
                   <div
-                    className="bg-gray-800 border border-gray-700 rounded-xl shadow-xl overflow-hidden"
+                    className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden"
                     style={{
                       position: 'absolute',
                       top: menuPos.top,
@@ -199,7 +195,7 @@ export const MemberDashboard = () => {
                     <div className="p-2">
                       <button
                         onClick={() => alert('Sign out functionality removed.')}
-                        className="w-full flex items-center gap-3 p-2 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-red-400 transition-all duration-300"
+                        className="w-full flex items-center gap-3 p-2 rounded-lg text-gray-300 hover:bg-gray-700/50 transition-all duration-300"
                       >
                         <LogOut className="w-4 h-4" />
                         <span className="text-sm font-semibold">Sign Out</span>

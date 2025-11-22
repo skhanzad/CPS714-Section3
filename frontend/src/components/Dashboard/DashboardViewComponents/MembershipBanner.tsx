@@ -26,7 +26,7 @@ export const MembershipBanner = ({ subscription, sendToProfile }: MembershipBann
     const tier = subscription?.membership_tiers;
 
     return (
-        <div className="relative rounded-2xl border border-gold-500/30 p-6 overflow-hidden hover:border-gold-500/30 hover:shadow-xl hover:shadow-gold-500/5 h-28">
+        <div className="relative rounded-2xl border border-gold-500/30 p-6 hover:border-gold-500/30 hover:shadow-xl hover:shadow-gold-500/10 duration-300 h-28 overflow-hidden">
             {/* Background Image For Membership Status */}
             <div
                 className="absolute inset-0 bg-cover bg-center"
@@ -43,17 +43,17 @@ export const MembershipBanner = ({ subscription, sendToProfile }: MembershipBann
                     {/* Added a crown button that also sends you to the users profile page to see more info on membership */}
                     <button
                         onClick={sendToProfile}
-                        className="bg-gold-500/90 p-3 rounded-xl shadow-lg hover:bg-gold-500 transition-all duration-300 hover:scale-110 cursor-pointer"
+                        className="bg-gold-500/90 p-3 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer"
                         title="Membership Details"
                     >
                         <Crown className="w-8 h-8 text-gray-900" />
                     </button>
                     <div>
-                        <h2 className="text-2xl font-bold text-white drop-shadow-lg">{tier?.name || 'No Active Plan'}</h2>
-                        <p className="text-gray-100 text-sm mt-1 drop-shadow">
+                        <h2 className="text-2xl font-bold text-white">{tier?.name || 'No Active Plan'}</h2>
+                        <p className="text-gray-300 text-sm mt-1">
                             {subscription?.status ? (
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-lg"></span>
+                                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
                                     {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
                                 </span>
                             ) : (
@@ -63,7 +63,7 @@ export const MembershipBanner = ({ subscription, sendToProfile }: MembershipBann
                     </div>
                 </div>
                 <div className="text-right">
-                    <p className="text-gray-100 text-lg font-semibold drop-shadow">
+                    <p className="text-gray-300 text-lg font-semibold">
                         {subscription?.renewal_date
                             ? `Renewal Date: ${subscription.renewal_date.split('T')[0]}`
                             : 'No renewal date'}

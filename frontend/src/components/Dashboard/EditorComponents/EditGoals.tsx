@@ -84,7 +84,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
     };
 
     return (
-        <div className="relative bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6 hover:shadow-xl hover:shadow-gold-500/5 stagger-2">
+        <div className="relative base-container stagger-2">
             <div
                 className="absolute inset-0 bg-cover bg-center opacity-10"
                 style={{
@@ -99,7 +99,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
                 {!isEditingGoals ? (
                     <button
                         onClick={handleEditGoals}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-gold-400 rounded-lg font-medium transition-all duration-300 text-sm"
+                        className="flex items-center gap-2 p-button general-button-hover rounded-lg font-medium text-sm"
                     >
                         <Edit2 className="w-4 h-4" />
                         Edit
@@ -108,7 +108,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleCancelGoals}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-red-400 rounded-lg font-medium transition-all duration-300 text-sm"
+                            className="flex items-center gap-2 p-button general-button-hover rounded-lg font-medium text-sm"
                         >
                             <X className="w-4 h-4" />
                             Cancel
@@ -116,7 +116,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
                         <button
                             onClick={handleSubmitButton}
                             disabled={save}
-                            className="flex items-center gap-2 px-4 py-2 bg-gold-500/90 hover:bg-gold-500 text-gray-900 rounded-lg font-medium transition-all duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 p-button bg-gold-500/90 hover:bg-gold-500 text-gray-900 rounded-lg font-medium transition-all duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Save className="w-4 h-4" />
                             {save ? 'Saving...' : 'Save'}
@@ -129,7 +129,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
             <textarea
                 value={fitnessGoals}
                 onChange={(e) => setFitnessGoals(e.target.value)}
-                className="input-field min-h-[160px] resize-none w-full relative z-10"
+                className="input-field min-h-[160px] resize-none w-full relative z-10 items-list"
                 placeholder="What are your fitness goals?"
                 disabled={!isEditingGoals}
             />

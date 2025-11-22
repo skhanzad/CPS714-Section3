@@ -9,8 +9,10 @@
  * This component is designed to provide users with an overview of their membership status.
  */
 
-import { Crown } from 'lucide-react';
+import { CalendarCheck, Crown, MedalIcon } from 'lucide-react';
 import { Database } from '../../../lib/supabase';
+import { BsCash } from 'react-icons/bs';
+import { GiCheckMark } from 'react-icons/gi';
 
 type Subscription = Database['public']['Tables']['membership_subscriptions']['Row'] & {
     membership_tiers: Database['public']['Tables']['membership_tiers']['Row'] | null;
@@ -25,45 +27,46 @@ export const MembershipDetails = ({ subscription }: MembershipDetailsProps) => {
     const tier = subscription?.membership_tiers;
 
     return (
-
-        <div className="bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6 hover:shadow-xl hover:shadow-gold-500/5 stagger-1 h-full flex flex-col">
+        
+        <div className="my-1 h-full bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6 stagger-1 h-full flex flex-col">
             {/* Combined Membership Details & Upgrade Section */}
             <div
-                className="bg-gold-500/90 p-3 rounded-xl shadow-lg hover:bg-gold-500 transition-all cursor-pointer h-14 w-auto flex items-center gap-3"
+                className="bg-gold-500 p-3 rounded-xl shadow-lg hover:bg-gold-500 transition-all h-14 w-auto flex justify-center items-center gap-3"
                 title="Membership Details">
                 <Crown className="w-6 h-6 text-gray-900" />
                 <span className="text-xl font-bold text-gray-900">Membership Details</span>
             </div>
             {tier && subscription ? (
-                <div className="space-y-4 mt-6 text-sm flex-grow">
-                    <div className="flex justify-between items-center">
-                        <span className="font-semibold text-gray-400 uppercase tracking-wider">Tier</span>
-                        <span className="font-bold text-gold-400 text-base">{tier.name}</span>
+                <div className="space-y-2 my-6 text-sm flex-grow divide-y divide-gold-500">
+                    <div className="flex justify-between items-center px-3 pt-6">
+                        <span className="text-gray-300 uppercase tracking-wider flex gap-3 text-lg"><Crown className="w-6 h-6 text-gray-300" />Status:</span>
+                        <span className="text-gray-900/50 capitalize bg-gold-500 px-1 rounded-lg text-lg animate-pulse flex gap-1 items-center"><GiCheckMark className="w-6 h-6 text-green-500" />{subscription.status}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                        <span className="font-semibold text-gray-400 uppercase tracking-wider">Status</span>
-                        <span className="font-medium text-gray-100 capitalize bg-green-500/20 px-2 py-1 rounded-md">{subscription.status}</span>
+                    <div className="flex justify-between items-center p-3">
+                        <span className="text-gray-300 uppercase tracking-wider flex gap-3 text-lg"><MedalIcon className="w-6 h-6 text-gray-300" />Tier:</span>
+                        <span className="text-gold-400 text-lg font-semibold">{tier.name}</span>
                     </div>
                     {subscription.renewal_date && (
-                        <div className="flex justify-between items-center">
-                            <span className="font-semibold text-gray-400 uppercase tracking-wider">Next Renewal</span>
-                            <span className="font-medium text-gray-100">
+                        <div className="flex justify-between items-center p-3">
+                            <span className="text-gray-300 uppercase tracking-wider flex gap-3 text-lg"><CalendarCheck className="w-6 h-6 text-gray-300" />Next Renewal:</span>
+                            <span className="font-semibold text-gray-300 text-lg">
                                 {subscription.renewal_date.split('T')[0]}
                             </span>
                         </div>
                     )}
                 </div>
             ) : (
-                <div className="flex-grow flex items-center justify-center">
-                    <p className="text-gray-400">No active membership found.</p>
+                <div className="flex items-center justify-center">
+                    <p className="text-gray-300">No active membership found.</p>
                 </div>
             )}
 
             {/* Button that should send you to billing details */}
             <button
-                className="mt-6 px-4 py-2 bg-gold-500/90 hover:bg-gold-500 text-gray-900 rounded-lg font-medium transition-all duration-300 text-sm w-full"
+                className="p-button button-icon bg-gold-500/90 hover:bg-gold-500 text-gray-900 rounded-lg"
             >
-                Upgrade Membership & View Billing Details
+                <BsCash className="w-6 h-6" />
+                <span>Upgrade Membership & View Billing Details</span>
             </button>
         </div>
     );

@@ -53,7 +53,7 @@ export const ProfileEditor = ({ profile, returnProfileData }: ProfileEditorProps
   const subscription = profile?.membership_subscriptions?.[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* TODO: I feel like this should also be its own component */}
       {/* Success Message If User Updates Info Correctly */}
       {error && (
@@ -82,7 +82,7 @@ export const ProfileEditor = ({ profile, returnProfileData }: ProfileEditorProps
         <div className="absolute inset-0 bg-gradient-to-r from-gold-500/60 to-gold-600/60 z-0" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {/* Combined Profile Picture & Personal Information Section */}
         <EditProfile profile={profile} returnProfileData={returnProfileData} reportSuccessProfile={handleSuccess} reportErrorInProfileEdit={handleError} />
         <MembershipDetails subscription={subscription} />
