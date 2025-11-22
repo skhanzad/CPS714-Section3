@@ -293,35 +293,6 @@ async def get_my_bookings(user_id: str):
             "bookings": []
         }
 
-@app.get("/members/{member_id}")
-async def get_member_by_id(member_id: str):
-    try:
-        db_query = supabase.table('member')\
-            .select('member_id, first_name, last_name, member_status')\
-            .eq('member_id', member_id)\
-            .single()\
-            .execute()
-        
-        member_data = db_query.data
-        
-        if not member_data:
-            return {
-                "success": False,
-                "message": f"Member with ID '{member_id}' not found"
-            }
-            
-        return {
-            "success": True,
-            "message": "Member retrieved successfully",
-            "member": member_data
-        }
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "message": f"Error retrieving member by ID: {str(e)}"
-        }
-
 @app.get("/members/name")
 async def get_member_by_name(first_name: str, last_name: str):
     try:
@@ -349,6 +320,35 @@ async def get_member_by_name(first_name: str, last_name: str):
         return {
             "success": False,
             "message": f"Error retrieving member by name: {str(e)}"
+        }
+
+@app.get("/members/{member_id}")
+async def get_member_by_id(member_id: str):
+    try:
+        db_query = supabase.table('member')\
+            .select('member_id, first_name, last_name, member_status')\
+            .eq('member_id', member_id)\
+            .single()\
+            .execute()
+        
+        member_data = db_query.data
+        
+        if not member_data:
+            return {
+                "success": False,
+                "message": f"Member with ID '{member_id}' not found"
+            }
+            
+        return {
+            "success": True,
+            "message": "Member retrieved successfully",
+            "member": member_data
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Error retrieving member by ID: {str(e)}"
         }
 
 app.include_router(data_router.data_router)
