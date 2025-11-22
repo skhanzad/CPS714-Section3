@@ -27,7 +27,7 @@ export const MemberTypesChart: React.FC = () => {
             },
             title: {
                 text: 'Number of Active Membership Types',
-                align: 'left',
+                align: 'center',
                 style: {
                     fontSize: '16px',
                 }
@@ -49,9 +49,8 @@ export const MemberTypesChart: React.FC = () => {
         
     }
 
-
     return (
-        <div>
+        <div className="flex items-center justify-center">
             { memberTypesData.length > 0 &&
                 //@ts-expect-error
                 <ReactApexChart options={chartInfo.options} series={chartInfo.series} type="pie" width={380} />

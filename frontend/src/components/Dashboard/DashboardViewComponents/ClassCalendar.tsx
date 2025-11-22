@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { GiWeightLiftingUp, GiMuscleUp, GiRunningShoe, GiBiceps, GiBoxingGlove, GiStrongMan } from 'react-icons/gi';
 import { FaDumbbell, FaHeartbeat } from 'react-icons/fa';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 interface classInSchedule {
   id: string;
@@ -143,8 +143,8 @@ export const ClassCalendar: React.FC<ClassCalendarProps> = ({ userId }) => {
   };
 
   /* Update Schedule View depending on which arrow button is pressed */
-  const updateWeek = (direction : 0 | 1 | 2, goToCurrentWeek: 0 | 1) => {
-    if (goToCurrentWeek === 1) { 
+  const updateWeek = (direction: 0 | 1 | 2, goToCurrentWeek: 0 | 1) => {
+    if (goToCurrentWeek === 1) {
       setCurrentWeekStart(startOfWeek(new Date()));
     }
     else {
@@ -193,7 +193,7 @@ export const ClassCalendar: React.FC<ClassCalendarProps> = ({ userId }) => {
       hours = parts_of_time[0];
       period = "AM";
     }
-    minutes = parts_of_time[1]; 
+    minutes = parts_of_time[1];
 
     return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
   }
