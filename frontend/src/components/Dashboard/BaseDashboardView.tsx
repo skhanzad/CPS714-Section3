@@ -1,3 +1,22 @@
+/**
+ * Base Dashboard View Component:
+ * This component serves as the foundational layout for the member dashboard,
+ * incorporating membership status, upcoming classes, an achievement feed, and a class calendar.
+ * It receives user subscription data and user ID as props to customize the displayed information.
+ * 
+ * The base dashboard receives the following props:
+ * - subscription: An object containing the user's membership subscription details, i.e. the membership tier.
+ * - userId: A string representing the unique identifier of the user. This is used to fetch user-specific data 
+ *           from Supabase and display user related information.
+ * - sendToProfile: A function that navigates the user to their profile page.
+ * 
+ * The component integrates several sub-components:
+ * - MembershipBanner: Displays the user's membership status and provides a link to the profile page.
+ * - UpcomingClasses: Shows a list of the user's upcoming class bookings within the next 7 days.
+ * - AchvFeed: Displays the user's gym achievements feed as well as achievements that are in progress for the user.
+ * - ClassCalendar: Provides a calendar view of the user's scheduled classes, organized weekly.
+ */
+
 import { MembershipBanner } from './DashboardViewComponents/MembershipBanner';
 import { UpcomingClasses } from './DashboardViewComponents/UpcomingClasses';
 import { AchvFeed } from './DashboardViewComponents/AchvFeed';
@@ -16,7 +35,7 @@ interface BaseDashboardViewProps {
 
 export const BaseDashboardView = ({ subscription, userId, sendToProfile }: BaseDashboardViewProps) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Membership Status Widget */}
       <MembershipBanner
         subscription={subscription}
@@ -24,7 +43,7 @@ export const BaseDashboardView = ({ subscription, userId, sendToProfile }: BaseD
       />
 
       {/* Upcoming Classes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-96">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 min-h-96">
         <UpcomingClasses userId={userId} />
 
         {/* Gym Acheivement Feed (Maybe goals we've acheived idk) */}
@@ -38,7 +57,7 @@ export const BaseDashboardView = ({ subscription, userId, sendToProfile }: BaseD
             backgroundImage: "url('https://images.unsplash.com/photo-1689877020200-403d8542d95d?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
+        <div className="absolute inset-0" />
       </div>
       {/* Add the Class Calendar component to the page  */}
       <div id="class-calendar" className="stagger-2">

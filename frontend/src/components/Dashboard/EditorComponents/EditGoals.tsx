@@ -1,3 +1,18 @@
+/**
+ * Edit Goals Component for User Profile:
+ * This component allows users to view and edit their fitness goals, and handles form submission to update the user's profile with new goals.
+ * All updates are communicated back to the parent component (ProfileEditor) through callback functions after awaiting a response from the submitProfile function.
+ * 
+ * The component receives the following props:
+ * - profile: An object containing the user's profile information along with their membership subscription details.
+ * - returnProfileData: A function to return the updated profile data to the parent component after edits.
+ * - reportSuccessGoals: A function to notify the parent component of a successful goals update.
+ * - reportErrorInGoalsEdit: A function to notify the parent component of any errors during the goals update process.
+ * 
+ * The component manages its own state for the fitness goals text area, editing mode, and saving status using React's useState hook.
+ * It also uses useEffect to initialize the fitness goals from the profile prop when the component mounts or when the profile changes.
+ */
+
 import { useState, useEffect } from 'react';
 import { Save, Edit2, X } from 'lucide-react';
 import { GiMuscleUp } from 'react-icons/gi';
@@ -69,7 +84,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
     };
 
     return (
-        <div className="relative bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6 hover:shadow-xl hover:shadow-gold-500/5 stagger-2">
+        <div className="relative base-container stagger-2">
             <div
                 className="absolute inset-0 bg-cover bg-center opacity-10"
                 style={{
@@ -84,7 +99,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
                 {!isEditingGoals ? (
                     <button
                         onClick={handleEditGoals}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-gold-400 rounded-lg font-medium transition-all duration-300 text-sm"
+                        className="flex items-center gap-2 p-button general-button-hover rounded-lg font-medium text-sm"
                     >
                         <Edit2 className="w-4 h-4" />
                         Edit
@@ -93,7 +108,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleCancelGoals}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-red-400 rounded-lg font-medium transition-all duration-300 text-sm"
+                            className="flex items-center gap-2 p-button general-button-hover rounded-lg font-medium text-sm"
                         >
                             <X className="w-4 h-4" />
                             Cancel
@@ -101,7 +116,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
                         <button
                             onClick={handleSubmitButton}
                             disabled={save}
-                            className="flex items-center gap-2 px-4 py-2 bg-gold-500/90 hover:bg-gold-500 text-gray-900 rounded-lg font-medium transition-all duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 p-button bg-gold-500/90 hover:bg-gold-500 text-gray-900 rounded-lg font-medium transition-all duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Save className="w-4 h-4" />
                             {save ? 'Saving...' : 'Save'}
@@ -114,7 +129,7 @@ export const EditGoals = ({ profile, returnProfileData, reportSuccessGoals, repo
             <textarea
                 value={fitnessGoals}
                 onChange={(e) => setFitnessGoals(e.target.value)}
-                className="input-field min-h-[160px] resize-none w-full relative z-10"
+                className="input-field min-h-[160px] resize-none w-full relative z-10 items-list"
                 placeholder="What are your fitness goals?"
                 disabled={!isEditingGoals}
             />

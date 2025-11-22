@@ -1,3 +1,19 @@
+/**
+ * Edit Profile Component for User Profile:
+ * This component allows users to view and edit their personal information, including profile picture, name, email, and phone number.
+ * It handles form submission to update the user's profile and communicates updates back to the parent component (ProfileEditor) through 
+ * callback functions after awaiting a response from the submitProfile function.
+ * 
+ * The component receives the following props:
+ * - profile: An object containing the user's profile information along with their membership subscription details.
+ * - returnProfileData: A function to return the updated profile data to the parent component after edits.
+ * - reportSuccessProfile: A function to notify the parent component of a successful profile update.
+ * - reportErrorInProfileEdit: A function to notify the parent component of any errors during the profile update process.
+ * 
+ * The component manages its own state for the profile fields, editing mode, and saving status using React's useState hook.
+ * It also uses useEffect to initialize the profile fields from the profile prop when the component mounts or when the profile changes.
+ */
+
 import { useState, useEffect } from 'react';
 import { Save, User, Upload, Edit2, X } from 'lucide-react';
 import { Database } from '../../../lib/supabase';
@@ -132,7 +148,7 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
     }
 
     return (
-        <div className="bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6 hover:shadow-xl hover:shadow-gold-500/5 stagger-1">
+        <div className="my-1 h-full base-container stagger-1">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
                     <User className="w-6 h-6 text-gold-400" />
@@ -141,7 +157,7 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
                 {!isEditingProfile ? (
                     <button
                         onClick={handleEditProfile}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-gold-400 rounded-lg font-medium transition-all duration-300 text-sm"
+                        className="flex items-center gap-2 p-button general-button-hover rounded-lg font-medium text-sm"
                     >
                         <Edit2 className="w-4 h-4" />
                         Edit
@@ -150,7 +166,7 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleCancelProfile}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-red-400 rounded-lg font-medium transition-all duration-300 text-sm"
+                            className="flex items-center gap-2 p-button general-button-hover rounded-lg font-medium text-sm"
                         >
                             <X className="w-4 h-4" />
                             Cancel
@@ -158,7 +174,7 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
                         <button
                             onClick={handleSubmitButton}
                             disabled={save}
-                            className="flex items-center gap-2 px-4 py-2 bg-gold-500/90 hover:bg-gold-500 text-gray-900 rounded-lg font-medium transition-all duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 p-button bg-gold-500/90 hover:bg-gold-500 text-gray-900 rounded-lg font-medium transition-all duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Save className="w-4 h-4" />
                             {save ? 'Saving...' : 'Save'}
@@ -167,99 +183,101 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
                 )}
             </div>
 
-            {/* Profile Picture at Top */}
-            <div className="flex items-center gap-4 mb-6">
-                <div className="relative">
-                    <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-gray-700/50 hover:border-gold-500/50 transition-all duration-300 shadow-lg">
-                        {profilePicture ? (
-                            <img
-                                src={profilePicture}
-                                alt="Profile"
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <div className="w-full h-full bg-gray-700/50 flex items-center justify-center">
-                                <User className="w-10 h-10 text-gray-500" />
-                            </div>
-                        )}
+            <div className="grid items-center gap-4 mb-6 border border-gold-400/50 p-4 rounded-lg">
+                {/* Profile Picture at Top */}
+                <div className="flex items-center gap-4 m-6">
+                    <div className="relative">
+                        <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-gray-700/50 hover:border-gold-500/50 transition-all duration-300">
+                            {profilePicture ? (
+                                <img
+                                    src={profilePicture}
+                                    alt="Profile"
+                                    className="w-full h-full"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gray-700/50 flex items-center justify-center">
+                                    <User className="w-10 h-10 text-gray-500" />
+                                </div>
+                            )}
+                        </div>
                     </div>
+
+                    {isEditingProfile && (
+                        <div>
+                            <label className="cursor-pointer">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handlePictureUpload}
+                                    className="hidden"
+                                />
+                                <div className="inline-flex items-center gap-2 p-button general-button-hover rounded-lg font-medium border border-gray-600/50 hover:border-gold-500/50 text-xs">
+                                    <Upload className="w-5 h-5" />
+                                    <span>Upload Photo</span>
+                                </div>
+                            </label>
+                        </div>
+                    )}
                 </div>
 
-                {isEditingProfile && (
-                    <div className="flex-1">
-                        <label className="cursor-pointer">
+                {/* Form for profile information */}
+                <form onSubmit={handleSubmitButton} className="space-y-5">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            {/* Update first name */}
+                            <label className="block text-sm font-semibold text-gold-400 mb-2 uppercase tracking-wide">First Name</label>
                             <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handlePictureUpload}
-                                className="hidden"
+                                type="text"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                className="input-field items-list"
+                                disabled={!isEditingProfile}
+                                required
                             />
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-gold-400 rounded-lg font-medium transition-all duration-300 border border-gray-600/50 hover:border-gold-500/50 text-xs">
-                                <Upload className="w-3.5 h-3.5" />
-                                <span>Upload Photo</span>
-                            </div>
+                        </div>
+                        <div>
+                            {/* Update last name */}
+                            <label className="block text-sm font-semibold text-gold-400 mb-2 uppercase tracking-wide">Last Name</label>
+                            <input
+                                type="text"
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                                className="input-field items-list"
+                                disabled={!isEditingProfile}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        {/* Update email name */}
+                        <label className="block text-sm font-semibold text-gold-400 mb-2 uppercase tracking-wide">Email</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="input-field items-list"
+                            disabled={!isEditingProfile}
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        {/* Update phone number (not actually sure if phone number is needed but added anyways) */}
+                        <label className="block text-sm font-semibold text-gold-400 mb-2 uppercase tracking-wide">
+                            Phone Number
                         </label>
+                        <input
+                            type="tel"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            className="input-field items-list"
+                            placeholder="(123) 456-7890"
+                            disabled={!isEditingProfile}
+                        />
                     </div>
-                )}
+                </form>
             </div>
-
-            {/* Form for profile information */}
-            <form onSubmit={handleSubmitButton} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        {/* Update first name */}
-                        <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">First Name</label>
-                        <input
-                            type="text"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                            className="input-field"
-                            disabled={!isEditingProfile}
-                            required
-                        />
-                    </div>
-                    <div>
-                        {/* Update last name */}
-                        <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Last Name</label>
-                        <input
-                            type="text"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                            className="input-field"
-                            disabled={!isEditingProfile}
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    {/* Update email name */}
-                    <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Email</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="input-field"
-                        disabled={!isEditingProfile}
-                        required
-                    />
-                </div>
-
-                <div>
-                    {/* Update phone number (not actually sure if phone number is needed but added anyways) */}
-                    <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">
-                        Phone Number
-                    </label>
-                    <input
-                        type="tel"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        className="input-field"
-                        placeholder="(123) 456-7890"
-                        disabled={!isEditingProfile}
-                    />
-                </div>
-            </form>
         </div>
     );
 };

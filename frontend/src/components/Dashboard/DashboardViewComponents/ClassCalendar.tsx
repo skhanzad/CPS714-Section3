@@ -1,3 +1,19 @@
+/**
+ * ClassCalendar Component for Dashboard:
+ * This component provides a weekly calendar view of the user's scheduled fitness classes pulled from Supabase.
+ * It allows users to navigate between weeks and view their class schedule in a structured format.
+ * 
+ * The component receives the following prop:
+ * - userId: A string representing the unique identifier of the user. This is used to fetch user-specific class schedule data from Supabase.
+ * 
+ * The following states are maintained within the component:
+ * - currentWeekStart: A Date object representing the start date of the currently displayed week.
+ * - events: An array of class schedule objects fetched from the "class_schedules" database in Supabase.
+ * 
+ * The component uses the useEffect hook to fetch class schedule data from Supabase when the component mounts
+ * or when the userId prop or currentWeekStart state changes.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { GiWeightLiftingUp, GiMuscleUp, GiRunningShoe, GiBiceps, GiBoxingGlove, GiStrongMan } from 'react-icons/gi';
@@ -237,7 +253,7 @@ export const ClassCalendar: React.FC<ClassCalendarProps> = ({ userId }) => {
   const weekDays = daysOfWeek(currentWeekStart);
 
   return (
-    <div className="relative bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6 hover:shadow-xl hover:shadow-gold-500/5 overflow-hidden">
+    <div className="relative base-container overflow-hidden">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -261,19 +277,19 @@ export const ClassCalendar: React.FC<ClassCalendarProps> = ({ userId }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => updateWeek(0, 1)}
-              className="px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-gold-400 rounded-lg font-medium transition-all duration-200 text-sm"
+              className="p-2 general-button-hover rounded-lg font-medium text-sm"
             >
               Today
             </button>
             <button
               onClick={() => updateWeek(1, 0)}
-              className="p-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-gold-400 rounded-lg transition-all duration-200"
+              className="p-2 general-button-hover rounded-lg"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={() => updateWeek(2, 0)}
-              className="p-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-gold-400 rounded-lg transition-all duration-200"
+              className="p-2 general-button-hover rounded-lg"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -283,20 +299,16 @@ export const ClassCalendar: React.FC<ClassCalendarProps> = ({ userId }) => {
         <div className="overflow-x-auto">
           <div className="min-w-[1000px]">
             {/* Grid */}
-            <div className="grid grid-cols-8 gap-px bg-gray-700/30 rounded-xl border border-gray-700/50">
+            <div className="grid grid-cols-8 gap-px bg-gray-800/30 rounded-xl border border-gray-600/50">
               {/* Time column header */}
-              <div className="bg-gray-800/80 p-3">
-                <div className="text-sm font-semibold text-gray-400">Time</div>
+              <div className="bg-gray-700/90 p-3">
+                <div className="text-sm font-bold text-gray-300">Time</div>
               </div>
 
               {/* Day header */}
               {weekDays.map((day, index) => (
-                <div
-                  key={index}
-                  className={`bg-gray-800/80 p-3 text-center ${isToday(day) ? 'bg-gold-500/10 border-b-2 border-gold-500' : ''
-                    }`}
-                >
-                  <div className={`text-sm font-bold ${isToday(day) ? 'text-gold-400' : 'text-gray-100'}`}>
+                <div key={index} className={`bg-gray-700/90 p-3 text-center ${isToday(day) ? 'bg-gold-500/10 border-b-2 border-gold-500' : ''}`}>
+                  <div className={`text-sm font-bold ${isToday(day) ? 'text-gold-400' : 'text-gray-300'}`}>
                     {formatDayHeader(day)}
                   </div>
                 </div>
@@ -306,8 +318,8 @@ export const ClassCalendar: React.FC<ClassCalendarProps> = ({ userId }) => {
               {timeSlots.map((time, timeIndex) => (
                 <React.Fragment key={`time-row-${timeIndex}`}>
                   {/* Time */}
-                  <div key={`time-${timeIndex}`} className="bg-gray-800/50 p-3 text-right border-t border-gray-700/30">
-                    <div className="text-s text-gray-400 font-medium">{time}</div>
+                  <div key={`time-${timeIndex}`} className="bg-gray-700/90 p-3 text-right border border-gray-700/30">
+                    <div className="text-sm text-gray-300 font-bold ">{time}</div>
                   </div>
 
                   {/* Fill Cells With Events If Any */}
@@ -323,24 +335,22 @@ export const ClassCalendar: React.FC<ClassCalendarProps> = ({ userId }) => {
                     return (
                       <div
                         key={`cell-${timeIndex}-${dayIndex}`}
-                        className={"bg-gray-900/30 p-1 min-h-[60px] border-t border-gray-700/30 relative overflow-visible"}
-                      >
+                        className={"relative bg-gray-800/30 p-1 min-h-[60px] overflow-visible items-list"}>
                         {cellEvents.map((event, eventIndex) => {
                           const IconComponent = getRandomIcon(event.id);
                           return (
                             <div
                               key={`event-${event.id}-${eventIndex}`}
-                              className="absolute left-1 right-1 rounded-lg p-2 text-xs cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg bg-gold-500/90 text-gray-900 border border-gold-400 z-10"
+                              className="absolute left-[1px] right-[1px] rounded-md p-2 text-xs transition-all duration-300 hover:scale-105 bg-gold-500/90 text-gray-900 border border-gold-400 z-10"
                               style={{
                                 top: `${minutesPastHour(eventPosition(event.start_time))}px`,
                                 height: `${eventblockHeight(event.start_time, event.end_time)}px`
-                              }}
-                            >
-                              <div className="flex items-center gap-2">
+                              }}>
+                              <div className="flex items-center gap-1">
                                 <IconComponent className="w-4 h-4 flex-shrink-0" />
                                 <div className="font-bold truncate">{event.title}</div>
                               </div>
-                              <div className="text-xs opacity-90 truncate ml-1">{formatTime(event.start_time)}-{formatTime(event.end_time)}</div>
+                              <div className="text-xs truncate ml-1">{formatTime(event.start_time)}-{formatTime(event.end_time)}</div>
                             </div>
                           );
                         })}
