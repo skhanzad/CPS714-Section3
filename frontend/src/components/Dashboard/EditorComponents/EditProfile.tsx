@@ -148,8 +148,15 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
     }
 
     return (
-        <div className="my-1 h-full base-container stagger-1">
-            <div className="flex items-center justify-between mb-6">
+        <div className="relative my-1 h-full base-container stagger-1">
+            {/* Background Image */}
+            <div
+                className="backgroun-image"
+                style={{
+                backgroundImage: "url('https://images.unsplash.com/photo-1592051610978-672b8b817647?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+            }}/>
+
+            <div className="relative z-10 flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
                     <User className="w-6 h-6 text-gold-400" />
                     Personal Information
@@ -183,7 +190,7 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
                 )}
             </div>
 
-            <div className="grid items-center gap-4 mb-6 border border-gold-400/50 p-4 rounded-lg">
+            <div className="relative z-10 grid items-center gap-4 mb-6 border border-gold-400/50 p-4 rounded-lg">
                 {/* Profile Picture at Top */}
                 <div className="flex items-center gap-4 m-6">
                     <div className="relative">

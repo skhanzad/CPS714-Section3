@@ -37,6 +37,10 @@
     .base-container {
         @apply bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6;
     }
+
+    .backgroun-image {
+        @apply absolute inset-0 bg-cover bg-center opacity-10
+    }
 }
 
 
