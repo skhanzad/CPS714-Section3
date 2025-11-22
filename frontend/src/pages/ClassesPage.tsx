@@ -12,23 +12,53 @@ import { useMembers } from "../hooks/UseMembers";
 import { Modal } from "../components/modal";
 import { ErrorAlert } from "../components/alert";
 
+
+/**
+ * Type passed from the ClassFilter component.
+ * Represents user-selected filter values.
+ */
 type FilterFromComponent = {
   date: string | null; // 'yyyy-MM-dd' or null
   timeRange: string | null; // 'morning' | 'afternoon' | 'night' or null
 };
 
 export default function ClassesPage() {
+  
+   /**
+   * List of all class schedules returned from API.
+   */
   const [schedules, setSchedules] = useState<ClassSchedule[]>([]);
+
+   /**
+   * Loading + error management for schedules.
+   */
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+   /**
+   * List of members fetched from custom hook.
+   * activeUserId = the currently selected member in the navbar.
+   */
   const { members } = useMembers();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
+
+  /**
+   * Stores the user's active bookings.
+   * Needed to show which classes are already booked and toggle correctly.
+   */
   const [currentBookings, setCurrentBookings] = useState<
     { schedule_id: number; booking_id: number }[]
   >([]);
+
+   /**
+   * Modal + error alert messages.
+   */
   const [modalMessage, setModalMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  /**
+   * Load all bookings for the selected user whenever activeUserId changes.
+   */
   useEffect(() => {
     if (!activeUserId) return;
 
@@ -44,7 +74,12 @@ export default function ClassesPage() {
     loadBookings();
   }, [activeUserId]);
 
-  // Fetch function that accepts the exact params our API expects
+  /**
+   * Fetch class schedules from API based on filter params.
+   * Wrapped in useCallback to avoid unnecessary re-renders.
+   *
+   * @param filters - optional filter parameters mapped to API structure
+   */
   const loadSchedules = useCallback(
     async (filters: {
       date?: string;
@@ -71,7 +106,10 @@ export default function ClassesPage() {
     []
   );
 
-  // Adapter: convert the ClassFilter's (date, timeRange) into API params
+  /**
+   * Adapter function: transforms ClassFilter's (date, timeRange)
+   * into the exact parameters required by the class schedules API.
+   */
   const handleFilterChange = useCallback(
     (f: FilterFromComponent) => {
       // Map timeRange to time_from/time_to
@@ -99,19 +137,33 @@ export default function ClassesPage() {
     [loadSchedules]
   );
 
-  // initial load: no filters
+  /**
+   * Whenever the active user changes, load schedules again
+   * (even if filters are empty).
+   */
   useEffect(() => {
     if (activeUserId) {
       loadSchedules({});
     }
   }, [loadSchedules, activeUserId]);
 
-  // Set first member as active by default
+  /**
+   * On first load, automatically select the first member.
+   */
   useEffect(() => {
     if (members.length > 0 && !activeUserId) {
       setActiveUserId(members[0].member_id);
     }
   }, [members, activeUserId]);
+
+  /**
+   * Handles booking/unbooking a class.
+   *
+   * - If the user already booked it → cancel booking
+   * - If not booked yet → create new booking
+   *
+   * Updates UI state and shows success/error messages accordingly.
+   */
   async function handleBookingToggle(scheduleId: number) {
     if (!activeUserId) return;
 
@@ -134,7 +186,7 @@ export default function ClassesPage() {
         console.log("booked");
         setModalMessage("Your booking was successful!");
       }
-      // ⬅️ NEW: refresh schedules after change
+      // refresh schedules after change
       await loadSchedules({});
     } catch (err: any) {
       console.error(err.message);
@@ -159,7 +211,7 @@ export default function ClassesPage() {
         <p>
           {" "}
           Find the right class for your goals and take the next step in your
-          learning journey today.
+          fitness journey today.
         </p>
         <div className="mb-6">
           <ClassFilter onFilterChange={handleFilterChange} />

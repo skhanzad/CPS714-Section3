@@ -2,46 +2,80 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./styles.css";
 
+//
+// User type
+// ----------
+// Represents a single user with ID and name.
+//
 type User = {
   id: string;
   name: string;
 };
 
+//
+// NavbarProps
+// ------------
+// Props expected by Navbar:
+// - users: list of available users to switch between
+// - initialUserId: currently selected user ID (optional)
+// - onUserChange: callback when user switches
+//
 type NavbarProps = {
   users: User[];
   initialUserId: string | null;
   onUserChange?: (user: User) => void;
 };
 
+//
+// Navbar Component
+// ----------------
+// Displays the top navigation bar with site links, greeting, avatar, and
+// a user dropdown menu for switching between users.
+//
 export default function Navbar({
   users,
   initialUserId = null,
   onUserChange,
 }: NavbarProps) {
+  // Current active user state
   const [currentUser, setCurrentUser] = useState<User | null>(
     () => users.find((u) => u.id === initialUserId) ?? null
   );
+
+  // Dropdown menu open/closed state
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Ref for the avatar button (used for dropdown positioning)
   const avatarBtnRef = useRef<HTMLButtonElement | null>(null);
 
+  // Optional color mapping for avatars by username
   const avatarColors: Record<string, string> = {
     Alice: "bg-pink-100 text-pink-500",
     Jane: "bg-indigo-100 text-indigo-800",
     Bob: "bg-cyan-100 text-cyan-800",
   };
 
+  // Dropdown coordinates and layout state
   const [coords, setCoords] = useState<{
     top: number;
     left: number;
     width: number;
   } | null>(null);
+
+  // Should dropdown open above the avatar button?
   const [openAbove, setOpenAbove] = useState(false);
 
+
+  //
+  // Notify parent whenever the current user changes
+  //
   useEffect(() => {
     onUserChange && currentUser && onUserChange(currentUser);
   }, [currentUser, onUserChange]);
 
-  // Compute dropdown position
+  //
+  // Compute dropdown position dynamically
+  //
   useEffect(() => {
     if (!menuOpen || !avatarBtnRef.current) {
       setCoords(null);
@@ -52,15 +86,19 @@ export default function Navbar({
     const viewportH = window.innerHeight;
     const spaceBelow = viewportH - rect.bottom;
     const estimatedMenuHeight = 260;
+
+    // Determine if menu should open above or below
     const shouldOpenAbove =
       spaceBelow < estimatedMenuHeight && rect.top > spaceBelow;
     setOpenAbove(Boolean(shouldOpenAbove));
 
+    // Calculate top and left coordinates
     const top =
       window.scrollY + (shouldOpenAbove ? rect.top - 12 : rect.bottom + 12);
     const left = window.scrollX + rect.right - 192;
     setCoords({ top, left, width: 192 });
 
+    // Update on resize or scroll
     const handleR = () => {
       const r = btn.getBoundingClientRect();
       const vh = window.innerHeight;
@@ -81,7 +119,9 @@ export default function Navbar({
     };
   }, [menuOpen]);
 
-  // Close on outside click
+  //
+  // Close dropdown if clicking outside of it
+  //
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       if (!menuOpen) return;
@@ -96,6 +136,9 @@ export default function Navbar({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [menuOpen]);
 
+  //
+  // Switch active user
+  //
   const switchToUser = (userId: string) => {
     const u = users.find((x) => x.id === userId);
     if (u) {
@@ -105,6 +148,9 @@ export default function Navbar({
     }
   };
 
+  //
+  // Render avatar circle with first letter and optional color
+  //
   function renderAvatar(name: string) {
     const letter = name[0].toUpperCase();
     const colors = avatarColors[name] ?? "bg-gray-200 text-gray-700";
@@ -117,6 +163,7 @@ export default function Navbar({
     );
   }
 
+  // Main navigation links
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Classes", href: "/classes" },
@@ -134,6 +181,7 @@ export default function Navbar({
           Fithub
         </a>
 
+        {/* Navigation Links */}
         <div className="flex space-x-8 ml-6">
           {navItems.map((n) => (
             <a
@@ -145,7 +193,8 @@ export default function Navbar({
             </a>
           ))}
         </div>
-
+        
+        {/* User Greeting / Avatar */}
         <div className="flex items-center space-x-3">
           {currentUser ? (
             <div className="flex items-center space-x-3">
@@ -172,7 +221,7 @@ export default function Navbar({
         </div>
       </div>
 
-      {/* Portal dropdown */}
+      {/* Dropdown rendered in portal */}
       {menuOpen &&
         coords &&
         createPortal(
