@@ -9,11 +9,13 @@ import AddClassModal from './AddClass';
 import ClassManagement from './ClassManagement';
 import CreateChallengePage from './CreateChallenge';
 
+
 export const StaffDashboard = () => {
 
   const [showViewAdmins, setshowViewAdmins] = useState(false); //hide all modals (only open on click)
   const [showAddClass, setShowAddClass] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(false);
+  const [showCreateChallenge, setShowCreateChallenge] = useState(false);
   const [refreshFlag, setRefreshFlag] = useState(false);
   const triggerRefresh = () => setRefreshFlag((prev) => !prev)
 
