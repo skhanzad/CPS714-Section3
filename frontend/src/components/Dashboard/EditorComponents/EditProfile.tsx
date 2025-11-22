@@ -1,3 +1,19 @@
+/**
+ * Edit Profile Component for User Profile:
+ * This component allows users to view and edit their personal information, including profile picture, name, email, and phone number.
+ * It handles form submission to update the user's profile and communicates updates back to the parent component (ProfileEditor) through 
+ * callback functions after awaiting a response from the submitProfile function.
+ * 
+ * The component receives the following props:
+ * - profile: An object containing the user's profile information along with their membership subscription details.
+ * - returnProfileData: A function to return the updated profile data to the parent component after edits.
+ * - reportSuccessProfile: A function to notify the parent component of a successful profile update.
+ * - reportErrorInProfileEdit: A function to notify the parent component of any errors during the profile update process.
+ * 
+ * The component manages its own state for the profile fields, editing mode, and saving status using React's useState hook.
+ * It also uses useEffect to initialize the profile fields from the profile prop when the component mounts or when the profile changes.
+ */
+
 import { useState, useEffect } from 'react';
 import { Save, User, Upload, Edit2, X } from 'lucide-react';
 import { Database } from '../../../lib/supabase';

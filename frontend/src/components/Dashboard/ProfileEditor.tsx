@@ -1,3 +1,21 @@
+/**
+ * Profile Editor Component:
+ * Allows users to view and edit their profile information and fitness goals, as well as view their current membership details.
+ * All profile editing is done through the following subcomponents: EditProfile, EditGoals, and MembershipDetails.
+ * Displays success and error messages based on user actions.
+ * 
+ * The component receives the following props:
+ * - profile: An object containing the user's profile information along with their membership subscription details.
+ * - returnProfileData: A function to return the updated profile data to the parent component after edits.
+ * 
+ * The component integrates several sub-components:
+ * - EditProfile: A form for editing the user's profile picture and personal information.
+ * - EditGoals: A form for editing the user's fitness goals.
+ * - MembershipDetails: A section displaying the user's current membership tier, status, and renewal date.
+ * 
+ * Success and error states are managed using React's useState hook, providing feedback to the user upon profile updates.
+ */
+
 import { useState } from 'react';
 import { X, Crown, Save } from 'lucide-react';
 import { Database } from '../../lib/supabase';

@@ -1,3 +1,14 @@
+/**
+ * Membership Details Component for User Profile:
+ * Displays the user's current membership tier, status, and renewal date.
+ * Also includes a button to upgrade membership and view billing details, however the button does not currently have functionality.
+ * 
+ * The component receives the following props:
+ * - subscription: An object containing the user's membership subscription details along with their membership tier information.
+ * 
+ * This component is designed to provide users with an overview of their membership status.
+ */
+
 import { Crown } from 'lucide-react';
 import { Database } from '../../../lib/supabase';
 

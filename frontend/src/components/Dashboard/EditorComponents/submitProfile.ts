@@ -1,3 +1,17 @@
+/**
+ * Submit Profile Component:
+ * Handles the submission of updated profile information to the database.
+ * 
+ * The component receives the following props:
+ * - userId: The unique identifier of the user whose profile is being updated.
+ * - updates: An object containing the fields to be updated in the user's profile.
+ * - currentProfile: The current profile data of the user, used to merge with updated data.
+ * 
+ * It accesses the Supabase client to perform the update operation on the 'profiles' table.
+ * The appropriate update is made based on the provided userId and updates object.
+ * The function then returns the updated profile data upon successful submission or throws an error if the update fails.
+ */
+
 import { supabase } from "../../../lib/supabase";
 import { Database } from "../../../lib/supabase";
 

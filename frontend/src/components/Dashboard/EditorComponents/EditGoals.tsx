@@ -1,3 +1,18 @@
+/**
+ * Edit Goals Component for User Profile:
+ * This component allows users to view and edit their fitness goals, and handles form submission to update the user's profile with new goals.
+ * All updates are communicated back to the parent component (ProfileEditor) through callback functions after awaiting a response from the submitProfile function.
+ * 
+ * The component receives the following props:
+ * - profile: An object containing the user's profile information along with their membership subscription details.
+ * - returnProfileData: A function to return the updated profile data to the parent component after edits.
+ * - reportSuccessGoals: A function to notify the parent component of a successful goals update.
+ * - reportErrorInGoalsEdit: A function to notify the parent component of any errors during the goals update process.
+ * 
+ * The component manages its own state for the fitness goals text area, editing mode, and saving status using React's useState hook.
+ * It also uses useEffect to initialize the fitness goals from the profile prop when the component mounts or when the profile changes.
+ */
+
 import { useState, useEffect } from 'react';
 import { Save, Edit2, X } from 'lucide-react';
 import { GiMuscleUp } from 'react-icons/gi';
