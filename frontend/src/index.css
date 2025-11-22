@@ -41,6 +41,10 @@
     .backgroun-image {
         @apply absolute inset-0 bg-cover bg-center opacity-10
     }
+
+    .button-header {
+        @apply rounded-lg text-sm font-semibold
+    }
 }
 
 

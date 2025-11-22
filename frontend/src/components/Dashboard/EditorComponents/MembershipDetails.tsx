@@ -32,14 +32,14 @@ export const MembershipDetails = ({ subscription }: MembershipDetailsProps) => {
     const tier = subscription?.membership_tiers;
 
     return (
-        
+
         <div className="relative my-1 h-full bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6 stagger-1 h-full flex flex-col">
             {/* Background Image */}
             <div
                 className="backgroun-image"
                 style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1730652128205-f5e98e542786?q=80&w=1742&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
-            }}/>
+                    backgroundImage: "url('https://images.unsplash.com/photo-1730652128205-f5e98e542786?q=80&w=1742&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+                }} />
             {/* Combined Membership Details & Upgrade Section */}
             <div
                 className="bg-gold-500 p-3 rounded-xl shadow-lg hover:bg-gold-500 transition-all h-14 w-auto flex justify-center items-center gap-3"

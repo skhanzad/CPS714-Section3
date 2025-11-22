@@ -17,15 +17,15 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { User, Bell, LogOut } from 'lucide-react';
-import { GiBiceps } from 'react-icons/gi';
+import { User, Bell, LogOut, Calendar, Pyramid } from 'lucide-react';
+import { GiBiceps, GiCalendar, GiWeight } from 'react-icons/gi';
 import { FaDumbbell } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../lib/supabase';
 import { ProfileEditor } from './ProfileEditor';
 import { BaseDashboardView } from './BaseDashboardView';
 
-type TabType = 'dashboard' | 'profile';
+type TabType = 'dashboard' | 'profile' | 'bookclasses' | 'facilities';
 
 // Define a specific type for the profile object, including the nested subscription data.
 type ProfileWithSubscription = Database['public']['Tables']['profiles']['Row'] & {
@@ -59,7 +59,7 @@ export const MemberDashboard = () => {
   useEffect(() => {
     fetchProfileData(HARDCODED_USER_ID);
   }, []);
-  
+
   const fetchProfileData = async (userID: string) => {
     try {
       const { data, error } = await supabase
@@ -75,7 +75,7 @@ export const MemberDashboard = () => {
       console.error('Error fetching profile:', error.message);
     }
     setLoading(false);
-    };
+  };
 
   /* User data */
   const subscription = myProfile?.membership_subscriptions?.[0];
@@ -122,24 +122,27 @@ export const MemberDashboard = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`p-button rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === 'dashboard'
-                    ? 'bg-gold-500/90 text-gray-900 shadow-lg'
-                    : 'general-button-hover'
-                    }`}
-                >
-                  <GiBiceps className="w-4 h-4 inline mr-1" />
+                  className={`p-button rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-gold-500/90 text-gray-900 shadow-lg' : 'general-button-hover'}`}><GiBiceps className="w-4 h-4 inline mr-1" />
                   Dashboard
                 </button>
                 {/* Send to the profile editor */}
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className={`p-button rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === 'profile'
-                    ? 'bg-gold-500/90 text-gray-900 shadow-lg'
-                    : 'general-button-hover'
-                    }`}
-                >
+                  className={`p-button button-header ${activeTab === 'profile' ? 'bg-gold-500/90 text-gray-900 shadow-lg' : 'general-button-hover'}`}>
                   <User className="w-4 h-4 inline mr-1" />
                   Profile
+                </button>
+                {/* IMPORTANT DISCLAIMER THESE BUTTONS DO NOTHING. THEY ARE PURELY THERE FOR OTHER TEAMS TO ADD THEIR FEATURES */}
+                {/* THESE BUTTONS ARE FOR INTEGRATION AND DO NOT MAKE UP TEAM2s ACTUAL COMPONENT */}
+                <button
+                  className={`p-button button-header ${activeTab === 'facilities' ? 'bg-gold-500/90 text-gray-900 shadow-lg' : 'general-button-hover'}`}> <GiWeight className="w-4 h-4 inline mr-1" /> Facility
+                </button>
+                <button
+                  className={`p-button button-header ${activeTab === 'bookclasses'
+                    ? 'bg-gold-500/90 text-gray-900 shadow-lg'
+                    : 'general-button-hover'}`}>
+                  <Calendar className="w-4 h-4 inline mr-1" />
+                  Book Classes
                 </button>
               </div>
 
@@ -148,10 +151,11 @@ export const MemberDashboard = () => {
                 <button
                   onClick={() => setShowNotificationMenu(!showNotificationMenu)}
                   onBlur={() => setShowNotificationMenu(false)} // This will close the notifcication menu when clicking outside of it, but it also closes it when clicking inside, needs a better solution later
-                  className="relative p-2 text-gray-400 hover:text-gold-400 transition-all duration-200 hover:bg-gray-700/50 rounded-lg">
+                  className="relative button-header general-button-hover p-2">
                   <Bell className="w-5 h-5" />
+                  {/* Add a little notification pulse when there are notifications detected. */}
                   {notifications.length > 0 && (
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-gold-500 rounded-full shadow-lg shadow-gold-500/50"></span>
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-gold-500 rounded-full shadow-lg shadow-gold-500/50 animate-pulse"></span>
                   )}
                 </button>
 
