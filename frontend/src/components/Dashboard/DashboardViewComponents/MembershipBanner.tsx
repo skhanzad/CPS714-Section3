@@ -1,3 +1,15 @@
+/**
+ * Memembership Banner Component for Dashboard:
+ * This component displays the user's membership status, including the membership tier, current status, and renewal date. 
+ * It also includes a button that navigates to the user's profile page for more details about their membership.
+ * 
+ * The component receives the following props:
+ * - subscription: An object containing the user's membership subscription details.
+ * - sendToProfile: A function that navigates the user to their profile page.
+ * 
+ * The component conditionally renders the membership information based on the provided subscription data.
+ */
+
 import { Crown } from 'lucide-react';
 import { Database } from '../../../lib/supabase';
 

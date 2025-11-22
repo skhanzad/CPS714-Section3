@@ -1,3 +1,18 @@
+/**
+ * Member Dashboard Component:
+ * This component serves as the main dashboard for members, providing access to their profile and main dashboard. 
+ * The dashboard view and profile editor are rendered conditionally based on the active tab.
+ * The base dashbaord view is displayed by default, with an option to switch to the profile editor.
+ * 
+ * The following sub-components are integrated within this dashboard:
+ * - BaseDashboardView: The main dashboard view displaying membership status, upcoming classes, achievements, and class calendar.
+ * - ProfileEditor: A component that allows users to edit their profile information, including their fitness goals.
+ * 
+ * This componenent on its own includes a top banner with navigation buttons, notification button with a dropdown menu, and profile button also with a dropdown menu.
+ * The component fetches user profile data from the "profile" database on Supabase and manages state for active tabs and menus.
+ * It uses React hooks for state and effect management.
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {

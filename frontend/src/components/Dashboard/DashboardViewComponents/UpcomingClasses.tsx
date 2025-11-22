@@ -1,3 +1,19 @@
+/**
+ * Upcoming Classes Component for Dashboard:
+ * This component fetches and displays the user's upcoming class bookings within the next 7 days.
+ * It conditionally renders the list of upcoming class bookings or a message indicating that there are no upcoming classes booked.
+ * All data is retrieved from Supabase based on the provided userId prop.
+ * 
+ * The component receives the following prop:
+ * - userId: A string representing the unique identifier of the user. This is used to fetch user-specific class booking data from Supabase.
+ * 
+ * The component maintains the following state:
+ * - upcomingBookings: An array of class booking objects fetched from the "class_bookings" database in Supabase.
+ *                     Each booking object includes details about the class schedule and the associated fitness class (boxing, soccer, yoga, etc).
+ * 
+ * The component uses the useEffect hook to fetch upcoming class bookings from Supabase when the component mounts or when the userId prop changes.
+ */
+
 import { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
 import { GiWeightLiftingUp, GiRunningShoe } from 'react-icons/gi';
@@ -82,7 +98,7 @@ export const UpcomingClasses = ({ userId }: UpcomingClassesProps) => {
         </h3>
       </div>
 
-      <div className="mb-2 max-h-64 overflow-y-auto">
+      <div className="mb-2 max-h-64 min-h-64 overflow-y-auto">
         {upcomingBookings.length === 0 ? (
           <div className="text-center py-16 bg-gray-700/30 rounded-xl border border-dashed border-gray-600">
             <p className="text-gray-400 mb-4">No upcoming classes booked</p>

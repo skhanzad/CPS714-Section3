@@ -1,3 +1,22 @@
+/**
+ * Base Dashboard View Component:
+ * This component serves as the foundational layout for the member dashboard,
+ * incorporating membership status, upcoming classes, an achievement feed, and a class calendar.
+ * It receives user subscription data and user ID as props to customize the displayed information.
+ * 
+ * The base dashboard receives the following props:
+ * - subscription: An object containing the user's membership subscription details, i.e. the membership tier.
+ * - userId: A string representing the unique identifier of the user. This is used to fetch user-specific data 
+ *           from Supabase and display user related information.
+ * - sendToProfile: A function that navigates the user to their profile page.
+ * 
+ * The component integrates several sub-components:
+ * - MembershipBanner: Displays the user's membership status and provides a link to the profile page.
+ * - UpcomingClasses: Shows a list of the user's upcoming class bookings within the next 7 days.
+ * - AchvFeed: Displays the user's gym achievements feed as well as achievements that are in progress for the user.
+ * - ClassCalendar: Provides a calendar view of the user's scheduled classes, organized weekly.
+ */
+
 import { MembershipBanner } from './DashboardViewComponents/MembershipBanner';
 import { UpcomingClasses } from './DashboardViewComponents/UpcomingClasses';
 import { AchvFeed } from './DashboardViewComponents/AchvFeed';

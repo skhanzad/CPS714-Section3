@@ -1,3 +1,19 @@
+/**
+ * ClassCalendar Component for Dashboard:
+ * This component provides a weekly calendar view of the user's scheduled fitness classes pulled from Supabase.
+ * It allows users to navigate between weeks and view their class schedule in a structured format.
+ * 
+ * The component receives the following prop:
+ * - userId: A string representing the unique identifier of the user. This is used to fetch user-specific class schedule data from Supabase.
+ * 
+ * The following states are maintained within the component:
+ * - currentWeekStart: A Date object representing the start date of the currently displayed week.
+ * - events: An array of class schedule objects fetched from the "class_schedules" database in Supabase.
+ * 
+ * The component uses the useEffect hook to fetch class schedule data from Supabase when the component mounts
+ * or when the userId prop or currentWeekStart state changes.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { GiWeightLiftingUp, GiMuscleUp, GiRunningShoe, GiBiceps, GiBoxingGlove, GiStrongMan } from 'react-icons/gi';

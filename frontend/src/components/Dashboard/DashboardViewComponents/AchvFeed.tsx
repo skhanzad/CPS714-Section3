@@ -1,3 +1,26 @@
+/**
+ * Achievement Feed Component for Dashboard:
+ * This component fetches and displays the user's gym achievements from Supabase and allows
+ * users to switch between viewing achieved and in-progress achievements.
+ * The component conditionally renders the achievements based on the selected status and provides a button
+ * to toggle between viewing achieved and in-progress achievements.
+ * 
+ * The component receives the following prop:
+ * - userId: A string representing the unique identifier of the user. This is used to fetch user-specific achievement data from Supabase.
+ * 
+ * The following states are maintained within the component:
+ * - achievements: An array of achievement objects fetched from the "achievements" database in Supabase.
+ *                 The data retrieved includes the achievement ID, the title, description, and icon. 
+ *                 Only the description and icon are used for displaying achievements on the dashboard.
+ * - showAchievementStatus: A string indicating whether to display "achieved" or "in_progress" achievements,
+ *                          which is fetched from the "user_achievements" database in Supabase.
+ *                          This state is toggled via a button in the UI.
+ * - loading: A boolean indicating whether the data is still being fetched.
+ * 
+ * The component uses the useEffect hook to fetch achievement data from Supabase when the component mounts
+ * or when the userId prop changes.
+ */
+
 import { useState, useEffect } from 'react';
 import * as Icons from "react-icons/gi";
 import { GiMuscleUp, GiWeightLiftingUp } from 'react-icons/gi';
@@ -63,7 +86,7 @@ export const AchvFeed = ({ userId }: AchvFeedProps) => {
           The user_achievement database has a foriegn key that references the achievements database to display the achievement description and the associated icon. */}
 
         <div className="text-center text-gray-400">                     
-          <div className="flex flex-col gap-5 max-h-64 overflow-y-auto">
+          <div className="flex flex-col gap-5 max-h-64 min-h-64 overflow-y-auto">
             {achievements.filter(a => a.achievement_status === showAchievementStatus).length === 0 ? (
               <div className="text-gray-400 text-center py-6">No achievements yet.</div>
             ) : (
