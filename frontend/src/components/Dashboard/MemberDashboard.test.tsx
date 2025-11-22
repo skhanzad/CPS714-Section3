@@ -45,14 +45,18 @@ vi.mock('../../lib/supabase', () => {
 
 import { MemberDashboard } from './MemberDashboard';
 
+/*
+    Purpose of test: ensure the top-level dashboard navigation works.
+    What we do: render the dashboard, click the "Profile" button and confirm the profile editor
+    is shown. Then click "Dashboard" and confirm core dashboard content appears.
+*/
+
 test('clicking Profile button shows ProfileEditor', async () => {
   render(<MemberDashboard />);
 
-  // Wait for the Profile button to appear and click it
+  // Click the Profile button and assert the profile editor content appears
   const profileBtn = await screen.findByRole('button', { name: /profile/i });
   await userEvent.click(profileBtn);
-
-  // ProfileEditor displays 'Personal Information'
   expect(await screen.findByText(/personal information/i)).toBeInTheDocument();
 });
 
@@ -62,6 +66,6 @@ test('clicking Dashboard button shows dashboard view', async () => {
   const dashboardBtn = await screen.findByRole('button', { name: /dashboard/i });
   await userEvent.click(dashboardBtn);
 
-  // BaseDashboardView contains the calendar element
+  // Confirm a known dashboard section is rendered
   expect(await screen.findByText(/gym achievements feed/i)).toBeInTheDocument();
 });

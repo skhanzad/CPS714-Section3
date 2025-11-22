@@ -24,6 +24,7 @@ test('save calls submitProfile and returnProfileData', async () => {
   const mockSuccess = vi.fn();
   const mockError = vi.fn();
 
+  // Make the submitProfile mock return a slightly updated profile
   (submitProfile as any).mockResolvedValue({ ...baseProfile, full_name: 'Jane Updated' });
 
   render(
@@ -35,19 +36,16 @@ test('save calls submitProfile and returnProfileData', async () => {
     />
   );
 
-  // Enter edit mode
+  // Enter edit mode to reveal the Save button
   await userEvent.click(screen.getByRole('button', { name: /edit/i }));
 
-  // Change first name (select by current value because labels aren't linked)
+  // Locate the first-name input by its displayed value and change it
   const firstName = screen.getByDisplayValue('Jane') as HTMLInputElement;
-  // user-event may try to call select; set value via fireEvent instead to be robust
-  // but here we can type into the input directly
   await userEvent.clear(firstName);
   await userEvent.type(firstName, 'Jane');
 
-  // Click save
-  const saveBtn = screen.getByRole('button', { name: /save/i });
-  await userEvent.click(saveBtn);
+  // Click Save and wait for the mock API to be called
+  await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
   await waitFor(() => expect(submitProfile).toHaveBeenCalled());
   expect(mockReturn).toHaveBeenCalled();

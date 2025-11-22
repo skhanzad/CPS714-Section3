@@ -4,7 +4,13 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { AchvFeed } from './DashboardViewComponents/AchvFeed';
 
-// Mock supabase used by AchvFeed
+/*
+    Purpose of test: ensure the achievements feed can show either "Achieved" or "In Progress" items.
+    What we do: feed two fake achievements into the component, click the toggle button,
+    and confirm the visible list updates accordingly.
+*/
+
+// Simple supabase mock returning a small list of achievements
 vi.mock('../../lib/supabase', () => {
   const allAchievements = [
     { id: '1', achievement_status: 'achieved', achievements: { description: 'First lift', icon: 'GiMuscleUp' } },
@@ -13,11 +19,11 @@ vi.mock('../../lib/supabase', () => {
 
   return {
     supabase: {
-      from: vi.fn(() => ({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => Promise.resolve({ data: allAchievements, error: null })),
-        })),
-      })),
+      from: () => ({
+        select: () => ({
+          eq: async () => ({ data: allAchievements, error: null }),
+        }),
+      }),
     },
   };
 });
@@ -26,23 +32,17 @@ test('toggles between achieved and in progress achievements', async () => {
   render(<AchvFeed userId={'user-1'} />);
   const user = userEvent.setup();
 
-  // Initially, achieved achievements should be visible
+  // Initially show the achieved item and not the in-progress one
   expect(await screen.findByText('First lift')).toBeInTheDocument();
   expect(screen.queryByText('Half marathon')).not.toBeInTheDocument();
 
-  // Button initially shows 'View In Progress' (since default is 'achieved')
+  // Click the toggle and confirm the view switches
   const toggleBtn = await screen.findByRole('button', { name: /view in progress/i });
-  expect(toggleBtn).toBeInTheDocument();
-
-  // Click to toggle
   await user.click(toggleBtn);
 
-  // Now button text should be 'View Achieved'
   expect(await screen.findByRole('button', { name: /view achieved/i })).toBeInTheDocument();
 
-  // After toggling, in-progress achievements should be visible
-  await waitFor(() => {
-    expect(screen.getByText('Half marathon')).toBeInTheDocument();
-  });
+  // Wait for the in-progress item to appear and the achieved one to disappear
+  await waitFor(() => expect(screen.getByText('Half marathon')).toBeInTheDocument());
   expect(screen.queryByText('First lift')).not.toBeInTheDocument();
 });

@@ -3,12 +3,13 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
-// Mock submitProfile used by EditGoals
+//mock submitProfile used by EditGoals
 vi.mock('./submitProfile', () => ({ submitProfile: vi.fn() }));
 import { submitProfile } from './submitProfile';
 
 import { EditGoals } from './EditGoals';
 
+//mock profile data
 const baseProfile = {
   id: 'user-1',
   full_name: 'Jane Doe',
@@ -35,17 +36,17 @@ test('edit goals enables textarea and save calls submitProfile', async () => {
     />
   );
 
-  // Click edit
+  // Click Edit to enable editing mode
   await userEvent.click(screen.getByRole('button', { name: /edit/i }));
 
-  // Textarea should be enabled
+  // The textarea should now be editable
   const textarea = screen.getByPlaceholderText(/what are your fitness goals/i) as HTMLTextAreaElement;
   expect(textarea).not.toBeDisabled();
 
-  // Change goals — use fireEvent.change to avoid selection API issues in happy-dom
+  // Replace the textarea value directly (robust for the test environment)
   fireEvent.change(textarea, { target: { value: 'Gain muscle' } });
 
-  // Save
+  // Click Save and ensure the mocked submitProfile was invoked
   await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
   await waitFor(() => expect(submitProfile).toHaveBeenCalled());

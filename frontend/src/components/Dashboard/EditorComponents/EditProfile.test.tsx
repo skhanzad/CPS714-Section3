@@ -5,6 +5,13 @@ import userEvent from '@testing-library/user-event';
 
 import { EditProfile } from './EditProfile';
 
+/*
+    Purpose of tests: verify that when the user clicks "Edit" on their profile, the form becomes editable
+    and the upload-photo control appears.
+    What we check: after clicking Edit, a visible name input is enabled and the "Upload Photo"
+    label is shown (using mock data).
+*/
+
 const fakeProfile = {
   id: 'user-1',
   full_name: 'Jane Doe',
@@ -29,14 +36,14 @@ test('edit enables fields and shows upload button', async () => {
     />
   );
 
-  // Click the Edit button
+  // User action: click the Edit button to enable editing
   const editBtn = screen.getByRole('button', { name: /edit/i });
   await userEvent.click(editBtn);
 
-  // Inputs should be enabled - select by current value since labels are not linked
+  // Check: the First Name input renders with the initial value and is enabled
   const firstName = screen.getByDisplayValue('Jane') as HTMLInputElement;
   expect(firstName).not.toBeDisabled();
 
-  // Upload Photo label should be visible
+  // Check: the Upload Photo control is visible to let the user pick a new picture
   expect(screen.getByText(/upload photo/i)).toBeInTheDocument();
 });
