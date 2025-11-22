@@ -4,3 +4,7 @@ python-dotenv
 supabase
 pydantic-settings
 httpx
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.11.0
+faker>=19.0.0

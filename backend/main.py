@@ -293,40 +293,10 @@ async def get_my_bookings(user_id: str):
             "bookings": []
         }
 
-@app.get("/members/{member_id}")
-async def get_member_by_id(member_id: str):
-    try:
-        #supabase query to get member details by member_id
-        db_query = supabase.table('member')\
-            .select('member_id, first_name, last_name, member_status')\
-            .eq('member_id', member_id)\
-            .single()\
-            .execute()
-        
-        member_data = db_query.data
-        
-        if not member_data: #if the member is not found, return an error
-            return {
-                "success": False,
-                "message": f"Member with ID '{member_id}' not found"
-            }
-            
-        return { #return the member details found
-            "success": True,
-            "message": "Member retrieved successfully",
-            "member": member_data
-        }
-        
-    except Exception as e:
-        return { #return an error response if an exception occurs
-            "success": False,
-            "message": f"Error retrieving member by ID: {str(e)}"
-        }
-
 @app.get("/members/name")
 async def get_member_by_name(first_name: str, last_name: str):
     try:
-        #supabase query to get member details by first_name and last_name
+        #supabase query to get member details by member_id
         db_query = supabase.table('member')\
             .select('member_id, first_name, last_name, member_status')\
             .eq('first_name', first_name)\
@@ -351,6 +321,36 @@ async def get_member_by_name(first_name: str, last_name: str):
         return { #return an error response if an exception occurs
             "success": False,
             "message": f"Error retrieving member by name: {str(e)}"
+        }
+
+@app.get("/members/{member_id}")
+async def get_member_by_id(member_id: str):
+    try:
+        #supabase query to get member details by first_name and last_name
+        db_query = supabase.table('member')\
+            .select('member_id, first_name, last_name, member_status')\
+            .eq('member_id', member_id)\
+            .single()\
+            .execute()
+        
+        member_data = db_query.data
+        
+        if not member_data: #if the member is not found, return an error
+            return {
+                "success": False,
+                "message": f"Member with ID '{member_id}' not found"
+            }
+            
+        return { #return the member details found
+            "success": True,
+            "message": "Member retrieved successfully",
+            "member": member_data
+        }
+        
+    except Exception as e:
+        return { #return an error response if an exception occurs
+            "success": False,
+            "message": f"Error retrieving member by ID: {str(e)}"
         }
 
 app.include_router(data_router.data_router)
