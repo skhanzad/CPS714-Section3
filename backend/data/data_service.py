@@ -1,6 +1,6 @@
 from collections import Counter
 from datetime import datetime, date, timedelta
-from data.data_repo import *
+from .data_repo import *
 
 def getMembershipData():
 
