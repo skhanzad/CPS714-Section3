@@ -155,7 +155,7 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
     }
 
     return (
-        <div className="relative my-1 h-full base-container stagger-1">
+        <div className="relative my-1 h-full base-container stagger-XL">
             {/* Background Image */}
             <div
                 className="backgroun-image"

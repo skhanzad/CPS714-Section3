@@ -91,7 +91,7 @@ export const UpcomingClasses = ({ userId }: UpcomingClassesProps) => {
   }
 
   return (
-    <div className="base-container stagger-1">
+    <div className="base-container stagger-XL">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
           <GiRunningShoe className="w-6 h-6 text-gold-400" />
