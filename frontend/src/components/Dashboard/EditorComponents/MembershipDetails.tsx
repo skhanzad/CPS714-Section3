@@ -7,6 +7,10 @@
  * - subscription: An object containing the user's membership subscription details along with their membership tier information.
  * 
  * This component is designed to provide users with an overview of their membership status.
+ * 
+ * @param {Subscription | null | undefined} subscription - The user's membership subscription details including membership tier information.
+ * 
+ * @returns A JSX element representing the Membership Details interface.
  */
 
 import { CalendarCheck, Crown, MedalIcon } from 'lucide-react';

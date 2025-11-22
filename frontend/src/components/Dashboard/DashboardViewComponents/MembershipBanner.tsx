@@ -8,6 +8,11 @@
  * - sendToProfile: A function that navigates the user to their profile page.
  * 
  * The component conditionally renders the membership information based on the provided subscription data.
+ * 
+ * @param {Subscription | null | undefined} subscription - The user's membership subscription details including the membership tier.
+ * @param sendToProfile - Callback function to navigate the user to their profile page.
+ * 
+ * @returns A JSX element representing the Membership Banner interface.
  */
 
 import { Crown } from 'lucide-react';

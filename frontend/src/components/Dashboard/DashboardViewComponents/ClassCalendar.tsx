@@ -12,6 +12,10 @@
  * 
  * The component uses the useEffect hook to fetch class schedule data from Supabase when the component mounts
  * or when the userId prop or currentWeekStart state changes.
+ * 
+ * @param {string} userId - The unique identifier of the user for fetching user-specific class schedule data.
+ * 
+ * @returns A JSX element representing the Class Calendar interface.
  */
 
 import React, { useState, useEffect } from 'react';

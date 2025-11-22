@@ -11,6 +11,13 @@
  * 
  * The component manages its own state for the fitness goals text area, editing mode, and saving status using React's useState hook.
  * It also uses useEffect to initialize the fitness goals from the profile prop when the component mounts or when the profile changes.
+ * 
+ * @param {ProfileWithSubscription | null} profile - The user's profile data including membership subscription details and fitness goals.
+ * @param {ProfileWithSubscription | null} returnProfileData - Callback function to return updated profile data to the parent component.
+ * @param reportSuccessGoals - Callback function to notify parent component of successful goals update.
+ * @param {string} reportErrorInGoalsEdit - Callback function to notify parent component of errors during goals update.
+ * 
+ * @returns A JSX element representing the Edit Goals interface.
  */
 
 import { useState, useEffect } from 'react';

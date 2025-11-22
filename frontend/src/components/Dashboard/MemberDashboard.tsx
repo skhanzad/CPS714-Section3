@@ -9,8 +9,10 @@
  * - ProfileEditor: A component that allows users to edit their profile information, including their fitness goals.
  * 
  * This componenent on its own includes a top banner with navigation buttons, notification button with a dropdown menu, and profile button also with a dropdown menu.
- * The component fetches user profile data from the "profile" database on Supabase and manages state for active tabs and menus.
- * It uses React hooks for state and effect management.
+ * The component fetches user profile data from the "profile" table on Supabase and manages state for active tabs and menus.
+ * React hooks are used for state and effect management.
+ * 
+ * @returns A JSX element representing the Member Dashboard interface.
  */
 
 import { useState, useEffect, useRef } from 'react';

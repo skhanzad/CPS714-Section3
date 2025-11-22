@@ -14,6 +14,11 @@
  * - MembershipDetails: A section displaying the user's current membership tier, status, and renewal date.
  * 
  * Success and error states are managed using React's useState hook, providing feedback to the user upon profile updates.
+ * 
+ * @param {ProfileWithSubscription | null} profile - The user's profile data including membership subscription details and fitness goals.
+ * @param {ProfileWithSubscription | null} returnProfileData - Callback function to return updated profile data to the parent component.
+ * 
+ * @returns A JSX element representing the Profile Editor interface.
  */
 
 import { useState } from 'react';

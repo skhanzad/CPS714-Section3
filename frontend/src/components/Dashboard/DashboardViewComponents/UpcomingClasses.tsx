@@ -12,6 +12,10 @@
  *                     Each booking object includes details about the class schedule and the associated fitness class (boxing, soccer, yoga, etc).
  * 
  * The component uses the useEffect hook to fetch upcoming class bookings from Supabase when the component mounts or when the userId prop changes.
+ * 
+ * @param {string} userId - The unique identifier of the user for fetching user-specific class booking data.
+ * 
+ * @returns A JSX element representing the Upcoming Classes interface.
  */
 
 import { useState, useEffect } from 'react';
