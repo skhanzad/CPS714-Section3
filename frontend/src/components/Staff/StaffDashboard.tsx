@@ -7,6 +7,7 @@ import ReportsAnalytics from './ReportsAnalytics';
 import ViewAdmins from './Admins';
 import AddClassModal from './AddClass';
 import ClassManagement from './ClassManagement';
+import CreateChallengePage from './CreateChallenge';
 
 export const StaffDashboard = () => {
 
@@ -46,6 +47,14 @@ export const StaffDashboard = () => {
             <Bell className="w-4 h-4" />
             Announce
           </button>
+          {/*Create Challenge button*/}
+          <button
+            onClick={() => setShowCreateChallenge(true)} //update state
+            className="px-4 py-2 bg-yellow-500 text-black rounded-lg font-semibold hover:bg-yellow-500 transition flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Create Challenge
+          </button> 
         </div>
       </div>
 
@@ -58,6 +67,7 @@ export const StaffDashboard = () => {
       </div>
       {showViewAdmins && <ViewAdmins onClose={() => setshowViewAdmins(false)}/>} 
       {showAddClass && <AddClassModal onClose={() => setShowAddClass(false)} refreshClasses={triggerRefresh} />}
+      {showCreateChallenge && <CreateChallengePage onClose={() => setShowCreateChallenge(false)} refreshClasses={triggerRefresh} />}
     </div>
   );
 };
