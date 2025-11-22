@@ -12,6 +12,10 @@
  * 
  * The component uses the useEffect hook to fetch class schedule data from Supabase when the component mounts
  * or when the userId prop or currentWeekStart state changes.
+ * 
+ * @param {string} userId - The unique identifier of the user for fetching user-specific class schedule data.
+ * 
+ * @returns A JSX element representing the Class Calendar interface.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -195,21 +199,18 @@ export const ClassCalendar: React.FC<ClassCalendarProps> = ({ userId }) => {
   }
 
   function formatTime(start_time: string): string {
-    let hours = 0;
-    let minutes = 0;
-    let period = "";
-
+    if (!start_time) return '';
     const parts_of_time = start_time.split(':').map(Number);
 
-    if (parts_of_time[0] > 12) {
-      hours = parts_of_time[0] - 12;
-      period = "PM";
+    let hours = parts_of_time[0];
+    const minutes = parts_of_time[1];
+    const period = hours >= 12 ? 'PM' : 'AM';
+
+    if (hours > 12) {
+      hours -= 12;
+    } else if (hours === 0) {
+      hours = 12;
     }
-    else {
-      hours = parts_of_time[0];
-      period = "AM";
-    }
-    minutes = parts_of_time[1];
 
     return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
   }

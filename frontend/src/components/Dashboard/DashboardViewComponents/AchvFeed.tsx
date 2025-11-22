@@ -17,8 +17,11 @@
  *                          This state is toggled via a button in the UI.
  * - loading: A boolean indicating whether the data is still being fetched.
  * 
- * The component uses the useEffect hook to fetch achievement data from Supabase when the component mounts
- * or when the userId prop changes.
+ * The component uses the useEffect hook to fetch achievement data from Supabase when the component mounts or when the userId prop changes.
+ * 
+ * @param {string} userId - The unique identifier of the user for fetching user-specific achievement data.
+ * 
+ * @returns A JSX element representing the Achievement Feed interface.
  */
 
 import { useState, useEffect } from 'react';

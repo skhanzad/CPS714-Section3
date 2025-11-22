@@ -49,7 +49,7 @@ const ClassDetailsModal = ({ cls, onClose, refreshClasses }: { cls: any, onClose
         if (error) throw error;
 
         setShowAlert(true); //notee: checkmark popup to show updates have been made
-        
+
         setTimeout(() => 
             {
             setShowAlert(false);
@@ -58,6 +58,7 @@ const ClassDetailsModal = ({ cls, onClose, refreshClasses }: { cls: any, onClose
             1000 
         ); //settimeout 2nd argument is in ms
         try{
+          cls[editingField] = editValue; //update to the new value inside teh editor as well
           refreshClasses();
         }catch (error){
           console.error("Failed to refresh classes. Please try again", error);

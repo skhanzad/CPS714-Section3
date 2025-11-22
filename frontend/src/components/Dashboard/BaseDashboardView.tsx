@@ -15,6 +15,12 @@
  * - UpcomingClasses: Shows a list of the user's upcoming class bookings within the next 7 days.
  * - AchvFeed: Displays the user's gym achievements feed as well as achievements that are in progress for the user.
  * - ClassCalendar: Provides a calendar view of the user's scheduled classes, organized weekly.
+ * 
+ * @param {Subscription | null | undefined} subscription - The user's membership subscription details including the membership tier.
+ * @param {string} userId - The unique identifier of the user for fetching user-specific data.
+ * @param sendToProfile - Callback function to navigate the user to their profile page.
+ * 
+ * @returns A JSX element representing the Base Dashboard View interface.
  */
 
 import { MembershipBanner } from './DashboardViewComponents/MembershipBanner';

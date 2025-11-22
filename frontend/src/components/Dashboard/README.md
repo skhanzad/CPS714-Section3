@@ -9,21 +9,31 @@ If the user selects the profile button the ProfileEditor component will be rende
 
 The overall structure is as follows:
 
-----------------------
+
 MemberDashboard
-----------------------
+
 -> BaseDashboardView
+
 ---> Acheivement Feed
+
 ---> Class Calendar
+
 ---> MembershipBanner
+
 ---> Upcoming Classes
-----------------------
+
+
+
 -> ProfileEditor
+
 ---> EditProfile
+
 ---> EditGoals
+
 ---> MembershipDetails
+
 ---> (submitProfile)
-----------------------
+
 
 MemberDashboard: Contains the header of the Dashboard which has the logo, dashboard and profile buttons, notifications button and user sign out drop donw.
 

@@ -10,6 +10,14 @@
  * It accesses the Supabase client to perform the update operation on the 'profiles' table.
  * The appropriate update is made based on the provided userId and updates object.
  * The function then returns the updated profile data upon successful submission or throws an error if the update fails.
+ * 
+ * @param {string} userId - The unique identifier of the user whose profile is being updated.
+ * @param {Record<string, any>} updates - An object containing the fields to be updated in the user's profile.
+ * @param {ProfileWithSubscription} currentProfile - The current profile data of the user, used to merge with updated data.
+ * 
+ * @returns {ProfileWithSubscription} - Returns an updated profile object upon successful submission.
+ * @throws {error} - Throws an error if the update operation fails.
+ * 
  */
 
 import { supabase } from "../../../lib/supabase";
