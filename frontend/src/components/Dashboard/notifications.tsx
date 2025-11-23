@@ -3,9 +3,12 @@ import { supabaseN, DatabaseN } from '../../lib/supabaseNot';
 
 // Notifications view integrated with project supabase client and dark theme styles
 export default function Notifications() {
+  // `items` will hold notification rows fetched from the DB
   const [items, setItems] = useState<DatabaseN['public']['Tables']['notifications']['Row'][]>([]);
+  // `loading` shows a small loading text while we fetch data
   const [loading, setLoading] = useState(true);
 
+  // load notifications once when component mounts
   useEffect(() => {
     const load = async () => {
       try {
@@ -20,15 +23,19 @@ export default function Notifications() {
           .limit(50);
 
         if (error) {
+          // log error and show empty list
           console.error('Failed to load notifications', error);
           setItems([]);
         } else {
+          // save fetched rows into state
           setItems((data as any[]) || []);
         }
       } catch (err) {
+        // unexpected error
         console.error('Error loading notifications', err);
         setItems([]);
       } finally {
+        // hide loading indicator
         setLoading(false);
       }
     };
@@ -36,6 +43,7 @@ export default function Notifications() {
     load();
   }, []);
 
+  // while loading show a small message
   if (loading) return <div className="p-4 text-gray-300">Loading notifications...</div>;
 
   return (
@@ -54,6 +62,7 @@ export default function Notifications() {
                 </div>
                 <div className="text-xs text-slate-400 ml-4 whitespace-nowrap">{n.created_at ? new Date(n.created_at).toLocaleString() : ''}</div>
               </div>
+              {/* show author if present */}
               {n.author && <div className="text-xs text-slate-500 mt-2">Posted by {n.author}</div>}
             </div>
           ))}
