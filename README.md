@@ -17,11 +17,17 @@
 
 # How to run tests:
 
-1. cd to the backend folder
+1. cd to the `backend` folder
 2. Activate the virtual environment if not already active:
    - Windows CMD: `.venv\Scripts\activate.bat`
    - macOS/Linux: `source .venv/bin/activate`
 3. Install test dependencies if not done already:
    - Run `pip install -r requirements.txt`
-4. Run the command `pytest` to run all tests.
-5. Run `pytest -v` for more detailed output.
+4. Make sure `.env` in `backend` contains valid `SUPABASE_URL` and `SUPABASE_KEY`
+   if you plan to run integration tests against the live database.
+5. To run **all tests** (unit + integration):
+   - `pytest`
+6. To run **only fast unit tests** (mocked Supabase):
+   - `pytest -m unit`
+7. To run **only integration tests** (live Supabase):
+   - `pytest -m integration`
