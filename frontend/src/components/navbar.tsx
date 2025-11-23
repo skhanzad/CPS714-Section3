@@ -63,8 +63,7 @@ export default function Navbar({
   } | null>(null);
 
   // Should dropdown open above the avatar button?
-  const [openAbove, setOpenAbove] = useState(false);
-
+  const [_openAbove, setOpenAbove] = useState(false);
 
   //
   // Notify parent whenever the current user changes
