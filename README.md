@@ -1,3 +1,5 @@
+#Check out or deployed app here: https://fithubbooking-cps-714-section3.vercel.app/
+
 # How to set up frontend:
 
 1. Install Node.js if you haven't already from https://nodejs.org/en/download
