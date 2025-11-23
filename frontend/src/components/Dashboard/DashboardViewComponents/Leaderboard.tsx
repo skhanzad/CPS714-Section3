@@ -1,133 +1,139 @@
-import { useState } from "react";
-import { GiTrophyCup, GiPodiumWinner} from "react-icons/gi";
+import { useState, useEffect } from "react";
+import { GiTrophyCup, GiPodiumWinner } from "react-icons/gi";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
-import { supabase } from "../../../lib/supabase"; 
+import { supabase } from "../../../lib/supabase";
 
-const dummyChallenges = [
-  {
-    id: "challenge-1",
-    title: "30-Day Push-Up Challenge",
-    description: "See how many push-ups you can complete in 30 days.",
-    reward: "Champion Badge",
-    participants: [
-      { id: "user1", username: "Alex", progress_value: 230, avatar_url: "https://placehold.co/40x40?text=A" },
-      { id: "user2", username: "Jordan", progress_value: 180, avatar_url: "https://placehold.co/40x40?text=J" },
-      { id: "user3", username: "Taylor", progress_value: 90, avatar_url: "https://placehold.co/40x40?text=T" },
-    ],
-  },
-  {
-    id: "challenge-2",
-    title: "5KM Daily Run Challenge",
-    description: "Run 5KM every day for 14 days straight.",
-    reward: "Endurance Medal",
-    participants: [
-      { id: "user4", username: "Chris", progress_value: 70, avatar_url: "https://placehold.co/40x40?text=C" },
-      { id: "user2", username: "Jordan", progress_value: 60, avatar_url: "https://placehold.co/40x40?text=J" },
-    ],
-  },
-  {
-    id: "challenge-3",
-    title: "Gym Streak Challenge",
-    description: "Hit the gym 20 times this month.",
-    reward: "Streak Award",
-    participants: [
-      { id: "user5", username: "Mia", progress_value: 15, avatar_url: "https://placehold.co/40x40?text=M" },
-      { id: "user1", username: "Alex", progress_value: 12, avatar_url: "https://placehold.co/40x40?text=A" },
-      { id: "user3", username: "Taylor", progress_value: 8, avatar_url: "https://placehold.co/40x40?text=T" },
-    ],
-  },
-];
+interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  reward: string;
+  participants: {
+    id: string;
+    username: string;
+    progress_value: number;
+    avatar_url: string;
+  }[];
+}
 
-
-interface ChallengeCarouselProps {
+interface ChallengeLeaderboardProps {
   userId: string;
 }
 
-export const ChallengeLeaderboard = ({ userId }: ChallengeCarouselProps) => {
+export const ChallengeLeaderboard = ({ userId }: ChallengeLeaderboardProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [challenges, setChallenges] = useState(dummyChallenges);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
 
   const current = challenges[currentIndex];
 
-  // --------------------
-  // SUPABASE DATA FETCH 
-  // --------------------
-  //
-  // useEffect(() => {
-  //   const fetchChallenges = async () => {
-  //     setLoading(true);
-  //
-  //     // Fetch all challenges
-  //     const { data: challengesData, error: challengesError } = await supabase
-  //       .from("challenges")
-  //       .select("*")
-  //       .order("created_at", { ascending: false });
-  //
-  //    
-  //
-  //     //  Fetch all participants for all challenges
-  //     const { data: participantsData, error: participantsError } = await supabase
-  //       .from("challenge_participants")
-  //       .select("*, profiles(username, avatar_url)") 
-  //       .order("progress_value", { ascending: false });
-  //
-  //
-  //
-  //     // Merge participants into their challenge
-  //     const formatted = challengesData.map((challenge) => {
-  //       const participants = participantsData
-  //         .filter((p) => p.challenges_id === challenge.id)
-  //         .map((p) => ({
-  //           id: p.user_id,
-  //           username: p.profiles?.username || "Unknown",
-  //           progress_value: p.progress_value,
-  //           avatar_url: p.profiles?.avatar_url || "https://placehold.co/40x40?text=?",
-  //         }));
-  //
-  //       return { ...challenge, participants };
-  //     });
-  //
-  //     setChallenges(formatted);
-  //     setLoading(false);
-  //   };
-  //
-  //   fetchChallenges();
-  // }, []);
-  //
-  // --------------------
 
-  const hasJoined = current.participants.some((p) => p.id === userId);
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      setLoading(true);
 
-  const goNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % challenges.length);
-  };
 
-  const goPrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + challenges.length) % challenges.length);
-  };
+      const { data: challengesData, error: challengesError } = await supabase
+        .from("challenges")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-  const handleJoin = () => {
-    setIsJoining(true);
+      if (challengesError) {
+        console.error("Error loading challenges:", challengesError);
+        setLoading(false);
+        return;
+      }
 
-    setTimeout(() => {
-      const newChallenges = [...challenges];
-      newChallenges[currentIndex].participants.push({
-        id: userId,
-        username: "You",
-        progress_value: 0,
-        avatar_url: "https://placehold.co/40x40?text=U",
+
+      const { data: participantsData, error: participantsError } = await supabase
+        .from("challenge_participants")
+        .select("*, profiles(username, avatar_url)")
+        .order("progress_value", { ascending: false });
+
+      if (participantsError) {
+        console.error("Error loading participants:", participantsError);
+        setLoading(false);
+        return;
+      }
+
+
+      const formatted = challengesData.map((challenge) => {
+        const participants = participantsData
+          ?.filter((p) => p.challenges_id === challenge.id)
+          .map((p) => ({
+            id: p.user_id,
+            username: p.profiles?.username || "Unknown",
+            progress_value: p.progress_value,
+            avatar_url: p.profiles?.avatar_url || "https://placehold.co/40x40?text=?",
+          }));
+
+        return { ...challenge, participants };
       });
 
-      setChallenges(newChallenges);
+      setChallenges(formatted);
+      setLoading(false);
+    };
+
+    fetchChallenges();
+  }, []);
+
+
+  const handleJoin = async () => {
+    if (!current) return;
+
+    setIsJoining(true);
+
+    // Insert into Supabase
+    const { error } = await supabase.from("challenge_participants").insert({
+      challenges_id: current.id,
+      user_id: userId,
+      progress_value: 0
+    });
+
+    if (error) {
+      console.error("Join error:", error);
       setIsJoining(false);
-    }, 800);
+      return;
+    }
+
+    // Update UI instantly
+    const updated = [...challenges];
+    updated[currentIndex].participants.push({
+      id: userId,
+      username: "You",
+      progress_value: 0,
+      avatar_url: "https://placehold.co/40x40?text=U",
+    });
+
+    setChallenges(updated);
+    setIsJoining(false);
   };
 
-  return (
-    <div className="bg-gray-800/90 border border-gray-700/50 p-6 rounded-xl relative transition-all duration-300 hover:border-gold-400/30 hover:shadow-lg hover:shadow-gold-500/5">
+  const hasJoined = current?.participants?.some((p) => p.id === userId);
 
-      {/* Header + Arrows */}
+  const goNext = () =>
+    setCurrentIndex((prev) => (prev + 1) % challenges.length);
+
+  const goPrev = () =>
+    setCurrentIndex((prev) => (prev - 1 + challenges.length) % challenges.length);
+
+
+  if (loading) {
+    return (
+      <div className="p-6 bg-gray-800/90 rounded-xl text-center text-gray-300">
+        Loading challenges...
+      </div>
+    );
+  }
+
+
+
+
+  return (
+    <div className="bg-gray-800/90 border border-gray-700/50 p-6 rounded-xl relative">
+
+      {/* Header + arrows */}
       <div className="flex items-center justify-between mb-5">
         <button onClick={goPrev} className="p-2 hover:bg-gray-700 rounded-full">
           <HiChevronLeft className="w-6 h-6 text-gray-200" />
@@ -149,7 +155,7 @@ export const ChallengeLeaderboard = ({ userId }: ChallengeCarouselProps) => {
       {/* Leaderboard */}
       <div className="max-h-64 overflow-y-auto space-y-3">
         {current.participants.length === 0 ? (
-          <p className="text-gray-400 text-center py-5">No one has joined yet.</p>
+          <p className="text-gray-400 text-center py-5">No participants yet.</p>
         ) : (
           [...current.participants]
             .sort((a, b) => b.progress_value - a.progress_value)
@@ -159,14 +165,9 @@ export const ChallengeLeaderboard = ({ userId }: ChallengeCarouselProps) => {
                 className="flex items-center justify-between p-3 border rounded-lg bg-gray-700/30 hover:bg-gray-700 transition"
               >
                 <div className="flex items-center gap-4">
-                  <div className="text-gold-400 font-bold text-xl w-8 text-center">
-                    {index + 1}
-                  </div>
+                  <div className="text-gold-400 font-bold text-xl w-8 text-center">{index + 1}</div>
 
-                  <img
-                    src={p.avatar_url}
-                    className="w-10 h-10 rounded-full border border-gray-600"
-                  />
+                  <img src={p.avatar_url} className="w-10 h-10 rounded-full border border-gray-600" />
 
                   <div>
                     <p className="text-gray-200 font-semibold">{p.username}</p>
@@ -174,9 +175,7 @@ export const ChallengeLeaderboard = ({ userId }: ChallengeCarouselProps) => {
                   </div>
                 </div>
 
-                {index === 0 && (
-                  <GiPodiumWinner className="text-gold-300 w-7 h-7" />
-                )}
+                {index === 0 && <GiPodiumWinner className="text-gold-300 w-7 h-7" />}
               </div>
             ))
         )}
