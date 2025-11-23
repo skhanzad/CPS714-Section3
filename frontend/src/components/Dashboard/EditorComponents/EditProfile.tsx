@@ -155,13 +155,13 @@ export const EditProfile = ({ profile, returnProfileData, reportSuccessProfile, 
     }
 
     return (
-        <div className="relative my-1 h-full base-container stagger-1">
+        <div className="relative my-1 h-full base-container stagger-XL">
             {/* Background Image */}
             <div
                 className="backgroun-image"
                 style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1592051610978-672b8b817647?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
-            }}/>
+                    backgroundImage: "url('https://images.unsplash.com/photo-1592051610978-672b8b817647?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+                }} />
 
             <div className="relative z-10 flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">

@@ -33,7 +33,7 @@ export const MembershipDetails = ({ subscription }: MembershipDetailsProps) => {
 
     return (
 
-        <div className="relative my-1 h-full bg-gray-800/60 border border-gray-700/50 hover:border-gold-500/30 transition-all duration-300 p-6 stagger-1 h-full flex flex-col">
+        <div className="relative my-1 base-container stagger-XR h-full flex flex-col">
             {/* Background Image */}
             <div
                 className="backgroun-image"

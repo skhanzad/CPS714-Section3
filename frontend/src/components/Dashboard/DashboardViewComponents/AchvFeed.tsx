@@ -65,7 +65,7 @@ export const AchvFeed = ({ userId }: AchvFeedProps) => {
   };
 
   return (
-    <div className="base-container stagger-1">
+    <div className="base-container stagger-XR">
       <h3 className="text-xl font-bold text-gray-100 mb-5 flex items-center gap-2">
         <GiMuscleUp className="w-7 h-7 text-gold-400" />
         Gym Achievements Feed
