@@ -1,3 +1,5 @@
+// pie chart showing how many active members are in a particular membership type
+
 import React, { useEffect, useState } from 'react';
 import { getMemberTypesData } from '../analytics_service';
 import ReactApexChart from 'react-apexcharts';

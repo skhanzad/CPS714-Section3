@@ -1,3 +1,5 @@
+// Percentage usage of the gym relative to all the hours in a week 
+
 import React, { useEffect, useState } from 'react';
 import { getDaysHoursData } from '../analytics_service';
 import ReactApexChart from "react-apexcharts";

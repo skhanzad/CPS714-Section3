@@ -1,3 +1,5 @@
+// Card for uniform styling of charts in Reporting & Analytics dashboard
+
 import React from 'react';
 
 type Props = {

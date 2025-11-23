@@ -1,3 +1,5 @@
+// Reporting and Analytics Dashboard, containing all of the charts and arranging them as they will appear in the Staff Admin Dashboard
+
 import React from 'react';
 import SignupsCancellationsChart from './components/signups_cancellations_chart';
 import MostPopularChart from './components/most_popular_chart';

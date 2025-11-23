@@ -1,13 +1,16 @@
+# handler for handling API requests for Reporting & Analytics Dashboard
+# API requests are expected to come from forntend/src/components/Analytics/analytics_service.tsx
+
 from fastapi import APIRouter
 
 from data.data_service import *
 
 data_router = APIRouter()
 
+# sanity-checks
 @data_router.get("/data/", tags=["data"])
 async def data_get():
     return [{"This": "Is"}, {"Some": "Data"}]
-
 @data_router.get("/data/test", tags=["data"])
 async def data_get():
     return [{"test": "test"}]

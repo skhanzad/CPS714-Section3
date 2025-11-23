@@ -1,3 +1,5 @@
+// two charts, one of which shows the number of signups per month and the other the number of cancellations per month
+
 import React, { useEffect, useState } from 'react';
 import ReactApexChart from "react-apexcharts";
 import { getSignupsAndCancellationsData } from '../analytics_service';
@@ -86,12 +88,14 @@ export const SignupsCancellationsChart: React.FC = () => {
                 {
                     (signupsData.length > 0) &&
                     <div>
+                        {/* @ts-expect-error */}
                         <ReactApexChart options={chartInfoLine1.optionsLine1} series={chartInfoLine1.seriesLine1} type="line" height={250} />
                     </div>
                 }
                 {
                     (cancellationsData.length > 0) &&
                     <div>
+                        {/* @ts-expect-error */}
                         <ReactApexChart options={chartInfoLine2.optionsLine2} series={chartInfoLine2.seriesLine2} type="line" height={250} />
                     </div>
                 }

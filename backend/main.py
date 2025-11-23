@@ -1,3 +1,5 @@
+# sets up the FastAPI backend server 
+
 from fastapi import FastAPI, APIRouter
 from data import data_router
 from data import postmark_router
@@ -17,6 +19,7 @@ origins = [
     "https://localhost:5173/",
 ]
 
+# regex to allow all localhost addresses to access the server
 any_port_localhost_regex = r"^http:\/\/localhost:\d+$" 
 
 app.add_middleware(

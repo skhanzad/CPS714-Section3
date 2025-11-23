@@ -1,3 +1,5 @@
+// Simple count of the number of active members
+
 import React, { useEffect, useState } from 'react';
 import { getNumberActiveMembers } from '../analytics_service';
 

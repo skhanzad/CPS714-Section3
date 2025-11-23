@@ -1,3 +1,5 @@
+// bar chart showing the class times with the most people enrolled
+
 import React, { useEffect, useState } from 'react';
 import ReactApexChart from "react-apexcharts";
 import { getClassPopularityData } from '../analytics_service';
