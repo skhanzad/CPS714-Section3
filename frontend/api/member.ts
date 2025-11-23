@@ -1,3 +1,6 @@
+// environment variable for API URL, fallback to localhost for local development
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 export type Member = {
   member_id: string,  // Unique identifier for the member
   first_name: string, // Member's first name
@@ -8,7 +11,7 @@ export type Member = {
 export async function getMemberById(memberId: string): Promise<Member> {
 
   // Fetch member data from backend API
-  const res = await fetch(`http://localhost:8000/members/${memberId}`);
+  const res = await fetch(`${API_URL}/members/${memberId}`);
 
   // Throw error if HTTP response fails
   if (!res.ok) {

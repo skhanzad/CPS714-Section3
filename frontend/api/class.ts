@@ -1,3 +1,6 @@
+// environment variable for API URL, fallback to localhost for local development
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 export type ClassInfo = {
   class_id: number; // Unique identifier for the class type
   class_name: string; // Human-readable name of the class (e.g., "Yoga Basics")
@@ -33,7 +36,7 @@ export async function fetchClassSchedules(
 
   // Send GET request to backend schedules endpoint
   const res = await fetch(
-    `http://localhost:8000/classes/schedules?${params.toString()}`
+    `${API_URL}/classes/schedules?${params.toString()}`
   );
 
   // If request fails, throw an error to handle in frontend

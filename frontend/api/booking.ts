@@ -1,3 +1,6 @@
+// environment variable for API URL, fallback to localhost for local development
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 //
 // fetchCurrentBookings
 // ---------------------
@@ -9,7 +12,7 @@
 export async function fetchCurrentBookings(userId: string) {
 
   // Send GET request to backend endpoint with user_id as query param
-  const res = await fetch(`http://localhost:8000/classes/my-bookings?user_id=${userId}`);
+  const res = await fetch(`${API_URL}/classes/my-bookings?user_id=${userId}`);
 
   // Parse JSON response
   const data = await res.json();
@@ -35,7 +38,7 @@ export async function fetchCurrentBookings(userId: string) {
 // If the class is full or already booked, backend returns success=false.
 //
 export async function createBooking(userId: string, scheduleId: number) {
-  const res = await fetch("http://localhost:8000/classes/book", {
+  const res = await fetch(`${API_URL}/classes/book`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     // Body contains the required booking payload
@@ -60,7 +63,7 @@ export async function createBooking(userId: string, scheduleId: number) {
 // Backend responds with the ID that was cancelled.
 //
 export async function cancelBooking(userId: string, bookingId: number) {
-  const res = await fetch("http://localhost:8000/classes/cancel", {
+  const res = await fetch(`${API_URL}/classes/cancel`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     // Body includes ID of the specific booking to cancel
