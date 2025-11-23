@@ -13,7 +13,7 @@
 4. Activate the virtual environment (Windows PowerShell: ".venv\Scripts\Activate.ps1"; Windows CMD: ".venv\Scripts\activate.bat"; macOS/Linux: "source .venv/bin/activate")
 5. In the backend folder, create a ".env" file that sets "SUPABASE_URL" and "SUPABASE_KEY", you can create a copy of the .env template.
 6. Run "pip install -r requirements.txt" (use "pip3" on macOS if needed)
-6. Run "fastapi dev main.py" (or "uvicorn main:app --reload") to start the backend
+6. Run "fastapi dev main.py" to start the backend
 
 # How to run tests:
 
