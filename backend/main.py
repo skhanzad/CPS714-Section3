@@ -271,9 +271,11 @@ async def get_my_bookings(user_id: str):
     try:
         #supabase query to get bookings for the user with class and schedule details
         #fetching from class_bookings table where user_id matches the provided user_id
+        #only return active bookings (where cancelled_at is null)
         db_query = supabase.table('class_bookings')\
             .select('*, class_schedules(*, class(*))')\
             .eq('user_id', user_id)\
+            .is_('cancelled_at', 'null')\
             .order('booked_at', desc=True)
         
         final_result = db_query.execute()
