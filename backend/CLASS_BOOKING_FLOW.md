@@ -108,7 +108,17 @@ flowchart TD
 
 ## API Endpoints
 
-### GET /classes/schedules
+### Core booking endpoints
+
+#### GET /
+- **Purpose**: Simple root endpoint to verify that the API is running.
+- **Response**: `{ "message": "Hello World" }`
+
+#### GET /health
+- **Purpose**: Health check for the Class Booking API.
+- **Response**: `{ status, service, version }`
+
+#### GET /classes/schedules
 - **Purpose**: Fetch class schedules from today onward, optionally filtered.
 - **Query Params**: 
   - `date` (optional, format: `YYYY-MM-DD`)
@@ -116,7 +126,7 @@ flowchart TD
   - `time_to` (optional, format: `HH:MM:SS`)
 - **Response**: Array of `class_schedules` rows with nested `class` info (including `class_name`, `premium_status`, etc.), ordered by `scheduled_date`, then `time_from`.
 
-### GET /classes/my-bookings
+#### GET /classes/my-bookings
 - **Purpose**: Get a member’s bookings with class and schedule details.
 - **Query Params**: 
   - `user_id` (required, UUID as string)
@@ -124,7 +134,7 @@ flowchart TD
   - On success: `{ success, message, bookings: [ { ..., class_schedules: { ..., class: {...} } } ] }`
   - If no bookings: `success = true` and `bookings = []`.
 
-### POST /classes/book
+#### POST /classes/book
 - **Purpose**: Create a new class booking.
 - **Body**: `{ "user_id": string, "schedule_id": number }`
 - **Validation**: 
@@ -135,13 +145,44 @@ flowchart TD
 - **Response**: 
   - `{ success, message, booking, class_name, scheduled_date, time_from, notification }`
 
-### POST /classes/cancel
+#### POST /classes/cancel
 - **Purpose**: Cancel an existing booking.
 - **Body**: `{ "user_id": string, "booking_id": number }`
 - **Validation**: 
   - Booking exists for the given `booking_id` and `user_id`.
   - Booking is not already cancelled.
 - **Response**: `{ success, message, booking_id }`
+
+### Member helper endpoints
+
+These endpoints support searching and displaying member information (used by booking and other sub-projects).
+
+#### GET /members/name
+- **Purpose**: Look up one or more members by first and last name.
+- **Query Params**:
+  - `first_name` (required)
+  - `last_name` (required)
+- **Response**:
+  - On success: `{ success, message, members: [ { member_id, first_name, last_name, member_status } ] }`
+  - On not found: `{ success: false, message }`
+
+#### GET /members/{member_id}
+- **Purpose**: Fetch a single member by ID.
+- **Path Params**:
+  - `member_id` (required, UUID as string)
+- **Response**:
+  - On success: `{ success, message, member: { member_id, first_name, last_name, member_status } }`
+  - On not found: `{ success: false, message }`
+
+### Data / test endpoints
+
+These are simple test endpoints exposed by the shared `data_router` and are not part of the booking flow, but they do exist in the backend.
+
+#### GET /data/
+- **Purpose**: Returns placeholder data for testing.
+
+#### GET /data/test
+- **Purpose**: Returns a basic test payload to verify routing.
 
 ## Integration Points
 
