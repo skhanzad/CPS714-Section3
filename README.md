@@ -14,3 +14,14 @@
 5. In the backend folder, create a ".env" file that sets "SUPABASE_URL" and "SUPABASE_KEY", you can create a copy of the .env template.
 6. Run "pip install -r requirements.txt" (use "pip3" on macOS if needed)
 6. Run "fastapi dev main.py" (or "uvicorn main:app --reload") to start the backend
+
+# How to run tests:
+
+1. cd to the backend folder
+2. Activate the virtual environment if not already active:
+   - Windows CMD: `.venv\Scripts\activate.bat`
+   - macOS/Linux: `source .venv/bin/activate`
+3. Install test dependencies if not done already:
+   - Run `pip install -r requirements.txt`
+4. Run the command `pytest` to run all tests.
+5. Run `pytest -v` for more detailed output.
