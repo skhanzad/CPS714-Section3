@@ -27,6 +27,7 @@ import { MembershipBanner } from './DashboardViewComponents/MembershipBanner';
 import { UpcomingClasses } from './DashboardViewComponents/UpcomingClasses';
 import { AchvFeed } from './DashboardViewComponents/AchvFeed';
 import { ClassCalendar } from './DashboardViewComponents/ClassCalendar';
+import { ChallengeLeaderboard } from './DashboardViewComponents/Leaderboard';
 import { Database } from '../../lib/supabase';
 
 type Subscription = Database['public']['Tables']['membership_subscriptions']['Row'] & {
@@ -54,6 +55,12 @@ export const BaseDashboardView = ({ subscription, userId, sendToProfile }: BaseD
 
         {/* Gym Acheivement Feed (Maybe goals we've acheived idk) */}
         <AchvFeed userId={userId}/> {/* THIS WAS UPDATED */}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-96">
+        <ChallengeLeaderboard userId={userId} />
+
+
       </div>
       {/* Add a stock image of a gym for more asthetics and seperation */}
       <div className="relative rounded-2xl border border-gray-700/50 overflow-hidden h-56">
