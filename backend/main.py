@@ -34,7 +34,10 @@ class MemberName(BaseModel): #Pydantic model for member name
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite default port
+    allow_origins=[
+        "http://localhost:5173",  # Vite default port for local development
+        os.getenv("FRONTEND_URL", "*")  # Allow deployed frontend URL
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
