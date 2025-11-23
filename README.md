@@ -1,4 +1,4 @@
-#Check out or deployed app here: https://fithubbooking-cps-714-section3.vercel.app/
+# Check out or deployed app here: https://fithubbooking-cps-714-section3.vercel.app/
 
 # How to set up frontend:
 
