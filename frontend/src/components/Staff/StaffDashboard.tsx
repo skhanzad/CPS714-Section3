@@ -8,6 +8,7 @@ import ViewAdmins from './Admins';
 import AddClassModal from './AddClass';
 import ClassManagement from './ClassManagement';
 import CreateChallengePage from './CreateChallenge';
+import NotificationSend from './sendNotifications';
 
 
 export const StaffDashboard = () => {
@@ -70,6 +71,7 @@ export const StaffDashboard = () => {
       {showViewAdmins && <ViewAdmins onClose={() => setshowViewAdmins(false)}/>} 
       {showAddClass && <AddClassModal onClose={() => setShowAddClass(false)} refreshClasses={triggerRefresh} />}
       {showCreateChallenge && <CreateChallengePage onClose={() => setShowCreateChallenge(false)} refreshClasses={triggerRefresh} />}
+      {showAnnouncement && <NotificationSend onClose={() => setShowAnnouncement(false)} />}
     </div>
   );
 };
