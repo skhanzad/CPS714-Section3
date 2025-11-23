@@ -17,15 +17,17 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { User, Bell, LogOut, Calendar, Pyramid } from 'lucide-react';
+import { User, Bell, BellDot, LogOut, Calendar, Pyramid } from 'lucide-react';
 import { GiBiceps, GiCalendar, GiWeight } from 'react-icons/gi';
 import { FaDumbbell } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../lib/supabase';
 import { ProfileEditor } from './ProfileEditor';
 import { BaseDashboardView } from './BaseDashboardView';
+import Notifications from './notifications';
+import { supabaseN } from '../../lib/supabaseNot';
 
-type TabType = 'dashboard' | 'profile' | 'bookclasses' | 'facilities';
+type TabType = 'dashboard' | 'profile' | 'bookclasses' | 'facilities' | 'notifications';
 
 // Define a specific type for the profile object, including the nested subscription data.
 type ProfileWithSubscription = Database['public']['Tables']['profiles']['Row'] & {
@@ -37,14 +39,13 @@ type ProfileWithSubscription = Database['public']['Tables']['profiles']['Row'] &
 
 export const MemberDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
-  const [notifications] = useState<any[]>([]);
-  const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileButtonRef = useRef<HTMLButtonElement | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [myProfile, setMyProfile] = useState<ProfileWithSubscription | null>(null);
   const [loading, setLoading] = useState(true);
   const HARDCODED_USER_ID = 'b41c76d2-0e38-4dec-8825-b10a0b841664';
+  const [hasActiveNotifications, setHasActiveNotifications] = useState<boolean>(false);
 
 
   useEffect(() => {
@@ -58,6 +59,39 @@ export const MemberDashboard = () => {
 
   useEffect(() => {
     fetchProfileData(HARDCODED_USER_ID);
+  }, []);
+
+  // Check whether there are any active notifications (end_time > now)
+  // This effect runs on mount and updates `hasActiveNotifications`.
+  useEffect(() => {
+    const checkActiveNotifications = async () => {
+      try {
+        const now = new Date().toISOString();
+        // Treat notifications as active when end_time is null OR end_time > now
+        const filter = `end_time.is.null,end_time.gt.${now}`;
+        const res = await supabaseN
+          .from('notifications')
+          .select('id', { count: 'exact' })
+          .or(filter)
+          .limit(1);
+
+        const { data, count, error } = res;
+
+        if (error) {
+          console.error('[MemberDashboard] Error checking notifications:', error);
+          setHasActiveNotifications(false);
+          return;
+        }
+
+        const has = (typeof count === 'number') ? (count > 0) : ((data && data.length > 0) ? true : false);
+        setHasActiveNotifications(has);
+      } catch (err) {
+        console.error('Error checking notifications:', err);
+        setHasActiveNotifications(false);
+      }
+    };
+
+    checkActiveNotifications();
   }, []);
 
   const fetchProfileData = async (userID: string) => {
@@ -149,21 +183,16 @@ export const MemberDashboard = () => {
               {/* Notifications (Again haven't touched this at all) */}
               <div className="relative">
                 <button
-                  onClick={() => setShowNotificationMenu(!showNotificationMenu)}
-                  onBlur={() => setShowNotificationMenu(false)} // This will close the notifcication menu when clicking outside of it, but it also closes it when clicking inside, needs a better solution later
-                  className="relative button-header general-button-hover p-2">
-                  <Bell className="w-5 h-5" />
-                  {/* Add a little notification pulse when there are notifications detected. */}
-                  {notifications.length > 0 && (
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-gold-500 rounded-full shadow-lg shadow-gold-500/50 animate-pulse"></span>
-                  )}
+                  onClick={() => setActiveTab('notifications')}
+                  className="relative p-2 text-gray-400 hover:text-gold-400 transition-all duration-200 hover:bg-gray-700/50 rounded-lg"
+                  title="Notifications"
+                >
+                    {hasActiveNotifications ? (
+                      <BellDot className="w-5 h-5 text-gold-400" />
+                    ) : (
+                      <Bell className="w-5 h-5" />
+                    )}
                 </button>
-
-                {/* Notification drop down menu */}
-                {showNotificationMenu && (
-                  <div className="absolute right-0 w-56 h-60 bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
-                  </div>
-                )}
               </div>
 
               {/* Sign drop down and banner */}
@@ -221,6 +250,7 @@ export const MemberDashboard = () => {
         <div className="max-w-7xl mx-auto px-6 py-8">
           {activeTab === 'dashboard' && (<BaseDashboardView subscription={subscription} userId={userId} sendToProfile={() => setActiveTab('profile')} />)}
           {activeTab === 'profile' && <ProfileEditor profile={myProfile} returnProfileData={setMyProfile} />}
+          {activeTab === 'notifications' && <Notifications />}
         </div>
       </main>
     </div>
