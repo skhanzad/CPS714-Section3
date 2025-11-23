@@ -26,7 +26,7 @@
 
 import { useState, useEffect } from 'react';
 import * as Icons from "react-icons/gi";
-import { GiMuscleUp, GiWeightScale } from 'react-icons/gi';
+import { GiMuscleUp, GiWeightScale, GiCheckMark } from 'react-icons/gi';
 import { supabase } from '../../../lib/supabase';
 
 interface Achievement {
@@ -89,9 +89,17 @@ export const AchvFeed = ({ userId }: AchvFeedProps) => {
                   key={index}
                   className="w-full flex justify-center flex-col items-center gap-3 p-3 items-list rounded-lg"
                 >
+                  
                   <Icon className="w-8 h-8 text-gold-400" />
-                  <div className="bg-gray-600 border-4 border-gray-900 rounded-full p-3 w-full text-center">
-                    <span className="text-md text-gold-400">{item.achievements.description}</span>
+                  <div className="flex justify-center items-center gap-4 bg-gray-600 border-4 border-gray-900 rounded-full p-3 w-full text-center">
+                    {showAchievementStatus === "achieved" && (
+                      <div className="items-center justify-center gap-2">
+                        <GiCheckMark className="w-4 h-4 text-green-500" />
+                      </div>
+                    )}
+                    <div className="items-center justify-center gap-2">
+                        <span className="relative items-center text-md text-gold-400">{item.achievements.description}</span>
+                      </div>
                   </div>
                 </div>
               );
