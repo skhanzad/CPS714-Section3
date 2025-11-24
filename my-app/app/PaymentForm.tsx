@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { updateMembershipTier, SubscriptionType } from '../lib/dataService'; 
 
 interface PaymentMethod {
     id: number;
@@ -9,190 +10,267 @@ interface PaymentMethod {
     is_default: boolean;
 }
 
+// Interface for PaymentForm
 interface PaymentFormProps {
+    currentPlan: SubscriptionType; 
     paymentMethods: PaymentMethod[];
-    userId: string; // Added user ID prop
-    updateBalanceService: (userId: string, amount: number) => Promise<boolean>; // Added service prop
-    onPaymentSuccess: () => void; // Added reload prop
+    userId: string;
+    updateBalanceService: (userId: string, amount: number) => Promise<boolean>;
+    onPaymentSuccess: () => void;
+    currentRecurring: string; 
 }
 
-export default function PaymentForm({ 
-    paymentMethods, // Ignored
-    userId, 
-    updateBalanceService, 
-    onPaymentSuccess 
-}: PaymentFormProps) {
-    
-    // Form State
-    const [amount, setAmount] = useState<number>(0.00);
-    const [cardName, setCardName] = useState('');
-    const [cardNumber, setCardNumber] = useState('');
-    const [expiry, setExpiry] = useState('');
-    const [cvc, setCvc] = useState('');
-    
-    const [isProcessing, setIsProcessing] = useState(false);
+// Hoerce the string to a valid cycle for function calls
+const getValidCycle = (cycle: string): 'monthly' | 'annual' => {
+    const lower = cycle.toLowerCase();
+    if (lower === 'annual') return 'annual';
+    return 'monthly'; // Default to monthly if anything else is passed
+};
 
-    const handleQuickPay = (quickAmount: number) => {
-        setAmount(quickAmount);
-    };
+export default function PaymentForm({ currentPlan, paymentMethods, userId, updateBalanceService, onPaymentSuccess, currentRecurring }: PaymentFormProps) {
+    //Form State
+    const [cardholderName, setCardholderName] = useState('');
+    const [cardNumber, setCardNumber] = useState('');
+    const [expDate, setExpDate] = useState('');
+    const [cvc, setCvc] = useState('');
+    const [amount, setAmount] = useState(0.00);
+    
+    // UI State
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<{ type: 'error' | 'success', message: string } | null>(null);
+    
+    const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>(getValidCycle(currentRecurring));
+
 
     const formatValue = (value: number) => {
+        // Simple formatter for display 
         return `C$${value.toFixed(2)}`;
-    }
+    };
 
+    // Validation and Formatting Helpers
+
+    const validateForm = () => {
+        if (amount <= 0) return "Please enter an amount greater than zero.";
+        if (cardholderName.trim() === '') return "Cardholder name is required.";
+        // Simple validation checks for required fields
+        if (cardNumber.replace(/\s/g, '').length !== 16) return "Card number must be 16 digits.";
+        if (cvc.length !== 3) return "CVC must be 3 digits.";
+        if (expDate.length !== 5 || !expDate.includes('/')) return "Expiration date must be MM/YY (e.g., 12/25).";
+        return null;
+    };
+
+    const formatCardNumber = (value: string) => {
+        const cleaned = value.replace(/\D/g, '');
+        return cleaned.match(/.{1,4}/g)?.join(' ').slice(0, 19) || '';
+    };
+
+    const formatExpDate = (value: string) => {
+        const cleaned = value.replace(/\D/g, '');
+        if (cleaned.length > 2) {
+            return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}`;
+        }
+        return cleaned;
+    };
+
+    // Handler for the payment button, updates balance
     const handleProcessPayment = async () => {
-        // Simple form validation for simulation
-        if (amount <= 0) {
-            alert("Please enter an amount greater than zero.");
+        const validationError = validateForm();
+        if (validationError) {
+            setStatusMessage({ type: 'error', message: validationError });
             return;
         }
-        if (cardName.length < 3 || cardNumber.length < 15 || expiry.length !== 5 || cvc.length < 3) {
-             alert("Please enter valid card details (Name, Number, Expiry, CVC).");
-            return;
-        }
-        
-        // Disable button and show loading state
+
         setIsProcessing(true);
+        setStatusMessage(null);
+        
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
         try {
-            // 1. SIMULATE SECURE PAYMENT PROCESSING 
-            console.log(`Simulating payment initiation for ${formatValue(amount)} using card ending in ${cardNumber.slice(-4)}...`);
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network latency
-            
-            // 2. UPDATE BALANCE IN SUPABASE 
+            // update the user's balance in the database
             const success = await updateBalanceService(userId, amount);
 
             if (success) {
-                alert(`Payment successful! ${formatValue(amount)} credited to your account.`);
-                setAmount(0.00); // Clear amount
-                setCardName(''); // Clear form
+                setStatusMessage({ type: 'success', message: `Payment of ${formatValue(amount)} successful! Credit balance updated.` });
+                onPaymentSuccess();
+                // Clear form fields on success
+                setCardholderName('');
                 setCardNumber('');
-                setExpiry('');
+                setExpDate('');
                 setCvc('');
+                setAmount(0.00); 
 
-                onPaymentSuccess(); // Trigger parent component to reload dashboard data
             } else {
-                alert("Payment failed: Could not update user balance in the database.");
+                setStatusMessage({ type: 'error', message: "Payment processed, but database update failed." });
+            }
+        } catch (e) {
+            setStatusMessage({ type: 'error', message: "A network error occurred during payment processing." });
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+    
+    // Handler for the toggle switch 
+    const handleToggleCycle = async () => {
+        const newCycle = billingCycle === 'monthly' ? 'annual' : 'monthly';
+        
+        setIsProcessing(true);
+        setStatusMessage(null);
+        
+        try {
+             // Use currentPlan properties needed for the service call
+             const result = await updateMembershipTier(
+                userId, 
+                currentPlan.plan_name ?? 'basic', 
+                currentPlan.is_active ? 'active' : 'inactive', 
+                currentPlan.balance ?? 0, 
+                0, 
+                'cycle', 
+                newCycle
+            );
+
+            if (result.success) {
+                setStatusMessage({ type: 'success', message: `Billing cycle successfully switched to ${newCycle.toUpperCase()}.` });
+                setBillingCycle(newCycle); 
+                onPaymentSuccess();
+            } else {
+                 setStatusMessage({ type: 'error', message: result.message });
             }
         } catch (error) {
-            console.error("Payment transaction error:", error);
-            alert("An unexpected error occurred during payment processing.");
+            setStatusMessage({ type: 'error', message: "A server error occurred during the cycle switch." });
         } finally {
             setIsProcessing(false);
         }
     };
 
+
     return (
-        <div className="flex-1 min-w-[320px] p-6 bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-gray-100 dark:border-zinc-700 payment-panel">
-            
+        // custom styling
+        <div className="flex-1 min-w-[320px] p-6 bg-gray-900 rounded-xl shadow-md border border-gray-800 payment-panel">
+
             {/* Header */}
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Make a Payment</h2>
-            <p className="text-sm text-gray-600 dark:text-zinc-400 mb-6">Process one-time payments or add credits to your account.</p>
+            <h2 className="text-xl font-semibold text-gray-100 mb-2">Make a Payment</h2>
+            <p className="text-sm text-gray-400 mb-6">Securely process a one-time payment or add credit.</p>
 
-            {/* CARD DETAILS INPUTS */}
+            {/* Status Message */}
+            {statusMessage && (
+                <div className={`p-3 my-4 rounded-lg text-sm font-medium ${statusMessage.type === 'error' ? 'bg-red-900 text-red-300' : 'bg-green-900 text-green-300'}`}>
+                    {isProcessing ? 'Processing request...' : statusMessage.message}
+                </div>
+            )}
 
+            {/* Amount Input */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Amount (CAD)</label>
+                <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">C$</span>
+                    <input
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+                        className="w-full pl-8 pr-3 py-2 border border-gray-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-gray-800 text-gray-100 placeholder-gray-500"
+                        placeholder="0.00"
+                    />
+                </div>
+            </div>
+            
             {/* Card Holder Name */}
             <div className="mb-4">
-                <label htmlFor="cardName" className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Card Holder Name</label>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Cardholder Name</label>
                 <input
-                    id="cardName"
                     type="text"
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-zinc-700 text-gray-900 dark:text-white"
-                    placeholder="John Doe"
-                    disabled={isProcessing}
+                    value={cardholderName}
+                    onChange={(e) => setCardholderName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-gray-800 text-gray-100 placeholder-gray-500"
+                    placeholder="Jane Doe"
                 />
-            </div>
-
-            {/* Card Number */}
-            <div className="mb-4">
-                <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Card Number</label>
-                <input
-                    id="cardNumber"
-                    type="text"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim())} // Formats number with spaces
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-zinc-700 text-gray-900 dark:text-white"
-                    placeholder="XXXX XXXX XXXX XXXX"
-                    maxLength={19} // 16 digits + 3 spaces
-                    disabled={isProcessing}
-                />
-            </div>
-
-            {/* Expiry and CVC */}
-            <div className="mb-6 flex space-x-4">
-                <div className="flex-1">
-                    <label htmlFor="expiry" className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Expiration (MM/YY)</label>
-                    <input
-                        id="expiry"
-                        type="text"
-                        value={expiry}
-                        onChange={(e) => {
-                            let value = e.target.value.replace(/\D/g, '');
-                            if (value.length > 2) value = value.slice(0, 2) + '/' + value.slice(2, 4);
-                            setExpiry(value);
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-zinc-700 text-gray-900 dark:text-white"
-                        placeholder="MM/YY"
-                        maxLength={5}
-                        disabled={isProcessing}
-                    />
-                </div>
-                <div className="flex-1">
-                    <label htmlFor="cvc" className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">CVC</label>
-                    <input
-                        id="cvc"
-                        type="text"
-                        value={cvc}
-                        onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').slice(0, 4))} // Max 4 digits
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-zinc-700 text-gray-900 dark:text-white"
-                        placeholder="123"
-                        maxLength={4}
-                        disabled={isProcessing}
-                    />
-                </div>
             </div>
             
-            {/* Amount Input */}
-            <div className="mb-6">
-              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Amount (CAD)</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-zinc-400">
-                  C$
-                </span>
+            {/* Card Number */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Card Number</label>
                 <input
-                  id="amount"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-zinc-700 text-gray-900 dark:text-white"
-                  placeholder="0.00"
-                  disabled={isProcessing}
+                    type="text"
+                    value={formatCardNumber(cardNumber)}
+                    onChange={(e) => setCardNumber(e.target.value)}
+                    maxLength={19}
+                    className="w-full px-3 py-2 border border-gray-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-gray-800 text-gray-100 placeholder-gray-500"
+                    placeholder="1111 2222 3333 4444"
                 />
-              </div>
+            </div>
+
+            {/* Expiration and CVC */}
+            <div className="flex space-x-4 mb-6">
+                <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Expiration (MM/YY)</label>
+                    <input
+                        type="text"
+                        value={formatExpDate(expDate)}
+                        onChange={(e) => setExpDate(e.target.value)}
+                        maxLength={5}
+                        className="w-full px-3 py-2 border border-gray-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-gray-800 text-gray-100 placeholder-gray-500"
+                        placeholder="12/25"
+                    />
+                </div>
+                <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-1">CVC</label>
+                    <input
+                        type="text"
+                        value={cvc}
+                        onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                        maxLength={3}
+                        className="w-full px-3 py-2 border border-gray-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-gray-800 text-gray-100 placeholder-gray-500"
+                        placeholder="123"
+                    />
+                </div>
             </div>
 
             {/* Process Payment Button */}
             <button 
                 onClick={handleProcessPayment}
-                className="flex justify-center items-center w-full py-3 mb-2 bg-black dark:bg-indigo-600 text-white font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-indigo-700 transition disabled:bg-gray-400 dark:disabled:bg-gray-700 btn-primary"
+                className="flex justify-center items-center w-full py-3 mb-2 bg-amber-500 text-gray-900 font-medium rounded-lg hover:bg-amber-400 transition disabled:bg-gray-700 disabled:text-gray-500 btn-primary"
                 disabled={isProcessing}
             >
                 {isProcessing ? (
-                    'Processing...'
+                    <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900 mr-2"></div>
+                        Processing...
+                    </>
                 ) : (
                     <>
-                        Pay {formatValue(amount)}
+                        Pay {amount > 0 ? formatValue(amount) : 'Now'}
                     </>
                 )}
             </button>
             
             {/* Security Message */}
-            <p className="text-center text-xs text-gray-500 dark:text-zinc-400 mb-6">
-              **SECURITY NOTE:** Do not enter real card details. This form is for simulation only.
+            <p className="text-center text-xs text-gray-500 mb-6">
+                Secure payment processing simulated
             </p>
 
+            {/* Toggle  */}
+            <div className="flex justify-between items-center bg-gray-800 p-3 rounded-lg border border-gray-700">
+                <span className="text-sm font-medium text-gray-300">
+                    Recurring Billing Cycle
+                </span>
+                <button
+                    onClick={handleToggleCycle}
+                    disabled={isProcessing}
+                    className={`relative inline-flex items-center h-8 transition-colors duration-200 ease-in-out rounded-full w-24 focus:outline-none ${
+                        billingCycle === 'annual' ? 'bg-amber-600' : 'bg-gray-700'
+                    }`}
+                >
+                    <span
+                        className={`inline-block w-12 h-6 transform bg-white rounded-full transition-transform duration-200 ease-in-out shadow-md text-xs font-semibold flex items-center justify-center ${
+                            billingCycle === 'annual'
+                                ? 'translate-x-[45px] text-amber-600' 
+                                : 'translate-x-[5px] text-gray-700' 
+                        }`}
+                        style={{ width: '45px' }}
+                    >
+                        {billingCycle === 'annual' ? 'Annual' : 'Monthly'}
+                    </span>
+                </button>
+            </div>
         </div>
     );
 }

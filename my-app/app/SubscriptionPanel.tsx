@@ -1,16 +1,21 @@
 "use client";
 
 import { useState } from 'react';
-import { SubscriptionType } from '../lib/dataService'; 
 
-// Props interface for clarity
 interface SubscriptionPanelProps {
-    currentPlan: SubscriptionType | any; 
+    currentPlan: any; 
     formatValue: (value: any) => string;
     formatDate: (dateString: string) => string;
     userId: string;
-    // Service function to update tier/status, checks balance, and updates dates
-    updateTierService: (userId: string, newTier: string, newStatus: string, currentBalance: number, price: number) => Promise<{ success: boolean, message: string }>;
+    updateTierService: (
+        userId: string, 
+        newTier: string, 
+        newStatus: string, 
+        currentBalance: number, 
+        price: number,
+        action: 'upgrade' | 'reactivate' | 'downgrade' | 'cancel' | 'cycle', 
+        newRecurringCycle: 'monthly' | 'annual' 
+    ) => Promise<{ success: boolean, message: string }>;
     onSubscriptionUpdate: () => void; // Function to reload parent data
 }
 
@@ -22,22 +27,25 @@ export default function SubscriptionPanel({ currentPlan, formatValue, formatDate
     const [statusMessage, setStatusMessage] = useState<{ type: 'error' | 'success', message: string } | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Check if currentPlan data has been loaded and is valid (needed to prevent errors on null data)
+    // Check if currentPlan data has been loaded and is valid 
     const isDataLoaded = currentPlan && currentPlan.plan_name;
-    const currentTier = currentPlan.plan_name?.toLowerCase();
-    // Derive current status: if is_active is true, status is active. Otherwise, use the status column or default to inactive.
-    const currentStatus = currentPlan.is_active ? 'active' : (currentPlan.status?.toLowerCase() === 'canceled' ? 'canceled' : 'inactive');
+    
+    // access plan_name and currentStatus
+    const currentTier = currentPlan.plan_name?.toLowerCase() ?? '';
+    const currentStatus = currentPlan.is_active ? 'active' : (currentPlan.status?.toLowerCase() ?? 'inactive'); 
+    
     const currentBalance = currentPlan.balance ?? 0;
     const currentPrice = currentPlan.price ?? 0;
+    
+    const currentRecurring = currentPlan.recurring === 'annual' ? 'annual' : 'monthly';
 
-    // Determine the price display
+    // price display
     const priceDisplay = isDataLoaded && currentPrice !== null 
-        ? `${formatValue(currentPrice)}/month`
+        ? `${formatValue(currentPrice)}/${currentRecurring === 'annual' ? 'year' : 'month'}` // Dynamic suffix
         : 'N/A';
 
-    // --- Action Handlers ---
 
-    const handleAction = async (action: 'upgrade' | 'downgrade' | 'cancel' | 'reactivate') => {
+    const handleAction = async (action: 'upgrade' | 'downgrade' | 'cancel' | 'reactivate' | 'cycle') => {
         if (!currentTier || !isDataLoaded) return;
 
         setIsProcessing(true);
@@ -48,12 +56,13 @@ export default function SubscriptionPanel({ currentPlan, formatValue, formatDate
         let newStatus = currentStatus;
         let priceToCheck = currentPrice; 
         
-        // --- LOGIC EXECUTION ---
+        let newRecurringCycle: 'monthly' | 'annual' = currentRecurring; 
+
         if (action === 'upgrade') {
             const nextIndex = tierIndex + 1;
             newTier = TIER_HIERARCHY[nextIndex];
             newStatus = 'active'; 
-
+            
             if (!newTier) {
                 setStatusMessage({ type: 'error', message: `Cannot upgrade: Already on top tier.` });
                 setIsProcessing(false);
@@ -63,7 +72,7 @@ export default function SubscriptionPanel({ currentPlan, formatValue, formatDate
             const nextIndex = tierIndex - 1;
             newTier = TIER_HIERARCHY[nextIndex];
             newStatus = 'active'; 
-            priceToCheck = 0; // ACTION: Downgrade is free and bypasses balance check
+            priceToCheck = 0; // Downgrade bypasses balance check
 
             if (!newTier) {
                 setStatusMessage({ type: 'error', message: `Cannot downgrade: Already on lowest tier.` });
@@ -75,22 +84,34 @@ export default function SubscriptionPanel({ currentPlan, formatValue, formatDate
             newTier = currentTier;
             priceToCheck = 0; // Cancellation is free
         } else if (action === 'reactivate') {
-            // ACTION: Reactivation sets status to active and requires the monthly fee
+            // Reactivation sets status to active and requires the monthly fee
             newStatus = 'active';
             newTier = currentTier;
             priceToCheck = currentPrice; 
+        } else if (action === 'cycle') {
+             // Cycle change is free, but changes the billing cycle.
+             newRecurringCycle = currentRecurring === 'monthly' ? 'annual' : 'monthly';
+             priceToCheck = 0;
+             newTier = currentTier;
+             newStatus = currentStatus;
         }
 
-        // --- Execute Supabase Update (Includes Balance Check and Date Reset) ---
         try {
-            // The service function handles: 1) Balance check, 2) Date setting, 3) DB write
-            const result = await updateTierService(userId, newTier, newStatus, currentBalance, priceToCheck);
+            const result = await updateTierService(
+                userId, 
+                newTier, 
+                newStatus, 
+                currentBalance, 
+                priceToCheck, 
+                action, 
+                newRecurringCycle
+            );
             
             if (result.success) {
-                setStatusMessage({ type: 'success', message: `Subscription successfully ${newStatus === 'active' ? 'updated/activated' : 'canceled'}.` });
-                onSubscriptionUpdate(); // RELOAD PARENT DATA TO UPDATE DATES/BALANCE
+                setStatusMessage({ type: 'success', message: `Subscription successfully ${action === 'cancel' ? 'canceled' : (action === 'cycle' ? 'cycle updated' : 'updated/activated')}.` });
+                onSubscriptionUpdate(); 
             } else {
-                // This handles the "Insufficient balance" message from dataService.ts
+                //handles the "Insufficient balance" message
                 setStatusMessage({ type: 'error', message: result.message });
             }
         } catch (error) {
@@ -100,8 +121,6 @@ export default function SubscriptionPanel({ currentPlan, formatValue, formatDate
         }
     };
     
-    // --- Conditional Button Status ---
-
     const canUpgrade = currentStatus === 'active' && TIER_HIERARCHY.indexOf(currentTier) < TIER_HIERARCHY.length - 1;
     const canDowngrade = currentStatus === 'active' && TIER_HIERARCHY.indexOf(currentTier) > 0;
     const canCancel = currentStatus === 'active';
@@ -110,102 +129,112 @@ export default function SubscriptionPanel({ currentPlan, formatValue, formatDate
     const isReady = !isProcessing && isDataLoaded;
 
     return (
-        <div className="flex-1 min-w-[320px] p-6 bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-gray-100 dark:border-zinc-700">
+        <div className="flex-1 min-w-[320px] p-6 bg-gray-900 rounded-xl shadow-md border border-gray-800 subscription-panel">
             
             {/* Header and Status Badge */}
             <div className="flex justify-between items-start mb-4">
                 <div className='flex flex-col'>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Current Subscription</h2>
-                    <p className="text-sm text-gray-600 dark:text-zinc-400">Manage your membership plan and billing</p>
+                    <h2 className="text-xl font-semibold text-gray-100">Current Subscription</h2>
+                    <p className="text-sm text-gray-400">Manage your membership plan and billing</p>
                 </div>
                 {/* Status Badge */}
                 {isDataLoaded && currentPlan.is_active ? (
-                    <span className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full dark:text-green-300 dark:bg-green-900 self-start">
+                    <span className="px-3 py-1 text-xs font-medium bg-amber-600 text-gray-900 rounded-full self-start">
                         Active
                     </span>
                 ) : (
-                    <span className="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full dark:text-red-300 dark:bg-red-900 self-start">
+                    <span className="px-3 py-1 text-xs font-medium bg-red-900 text-red-300 rounded-full self-start">
                         {currentStatus === 'canceled' ? 'Canceled' : 'Inactive'}
                     </span>
                 )}
             </div>
 
             {/* Plan Name and Price */}
-            <div className="flex justify-between items-end mb-6 border-b border-gray-200 dark:border-zinc-700 pb-4">
+            <div className="flex justify-between items-end mb-6 border-b border-gray-700 pb-4">
                 <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                        {isDataLoaded ? currentPlan.plan_name.toUpperCase() : 'Loading Plan...'}
+                    <h3 className="text-lg font-medium text-gray-100">
+                        {isDataLoaded ? (currentPlan.plan_name ?? 'N/A').toUpperCase() : 'Loading Plan...'}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-zinc-400">
-                        Billed {isDataLoaded ? currentPlan.billing_cycle : 'N/A'}
+                    <p className="text-sm text-gray-400">
+                        Billed {isDataLoaded ? currentRecurring.toUpperCase() : 'N/A'}
                     </p>
                 </div>
                 <div className="text-right">
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {/* Price display uses the conditional priceDisplay logic */}
+                    <p className="text-lg font-semibold text-gray-100">
                         {isDataLoaded && currentPrice !== null ? priceDisplay : 'N/A'}
                     </p>
-                    <p className="text-xs text-gray-400 dark:text-zinc-500">
+                    <p className="text-xs text-gray-500">
                         CAD
                     </p>
                 </div>
             </div>
 
-            {/* Member Since and Next Renewal Info */}
+            {/* Member Since and Next Renewal*/}
             <div className="flex justify-start space-x-12 text-sm mb-4">
                 {/* Member Since */}
                 <div className="flex flex-col">
-                    <p className="font-medium text-gray-700 dark:text-zinc-300 mb-2">Member Since</p>
-                    <div className="flex items-center space-x-2 text-gray-500 dark:text-zinc-400">
+                    <p className="font-medium text-gray-400 mb-2">Member Since</p>
+                    <div className="flex items-center space-x-2 text-gray-300">
                         <p>{isDataLoaded ? formatDate(currentPlan.member_since) : '...'}</p>
                     </div>
                 </div>
                 {/* Next Renewal */}
                 <div className="flex flex-col">
-                    <p className="font-medium text-gray-700 dark:text-zinc-300 mb-2">Next Renewal</p>
-                    <div className="flex items-center space-x-2 text-gray-500 dark:text-zinc-400">
+                    <p className="font-medium text-gray-400 mb-2">Next Renewal</p>
+                    <div className="flex items-center space-x-2 text-gray-300">
                         <p>{isDataLoaded ? formatDate(currentPlan.next_renewal) : '...'}</p>
                     </div>
                 </div>
             </div>
             
-            {/* --- Status Message Alert --- */}
+            
             {statusMessage && (
-                <div className={`p-3 my-4 rounded-lg text-sm font-medium ${statusMessage.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                <div className={`p-3 my-4 rounded-lg text-sm font-medium ${statusMessage.type === 'error' ? 'bg-red-900 text-red-300' : 'bg-green-900 text-green-300'}`}>
                     {isProcessing ? 'Processing request...' : statusMessage.message}
                 </div>
             )}
 
-            {/* --- Action Buttons Row 1: Upgrade & Cancel --- */}
-            <div className="flex space-x-4 mt-8">
+            {/* Billing Cycle Switch */}
+            <div className="flex justify-end mb-4">
+                <button 
+                    onClick={() => handleAction('cycle')}
+                    className="text-sm text-amber-500 hover:text-amber-300 transition disabled:opacity-50"
+                    disabled={isProcessing}
+                >
+                    Switch to {currentRecurring === 'monthly' ? 'Annual' : 'Monthly'} Billing
+                </button>
+            </div>
+
+            {/*Action Buttons Row 1: Upgrade & Cancel*/}
+            <div className="flex space-x-4">
                 <button 
                     onClick={() => handleAction('upgrade')}
-                    className="flex-1 flex justify-center items-center py-2 px-4 border border-indigo-500 bg-indigo-500 text-white rounded-lg font-medium transition disabled:bg-gray-300 disabled:border-gray-300 hover:bg-indigo-600"
+                    className="flex-1 flex justify-center items-center py-2 px-4 border-none bg-amber-500 text-gray-900 rounded-lg font-medium transition disabled:bg-gray-700 disabled:text-gray-400 hover:bg-amber-400 btn-primary"
                     disabled={isProcessing || !canUpgrade}
                 >
                     {isProcessing && canUpgrade ? 'Upgrading...' : 'Upgrade Plan'}
                 </button>
                 <button 
                     onClick={() => handleAction('cancel')}
-                    className="flex-1 flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-zinc-700 text-gray-800 dark:text-zinc-200 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-zinc-700 transition disabled:opacity-50"
+                    className="flex-1 flex justify-center items-center py-2 px-4 border border-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-700 transition disabled:opacity-50"
                     disabled={isProcessing || !canCancel}
                 >
                     Cancel Subscription
                 </button>
             </div>
             
-            {/* --- Action Buttons Row 2: Downgrade & Reactivate --- */}
+            {/*Action Buttons Row 2: Downgrade & Reactivate*/}
             <div className="flex space-x-4 mt-2">
                 <button 
                     onClick={() => handleAction('downgrade')}
-                    className="flex-1 flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-zinc-700 text-gray-800 dark:text-zinc-200 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-zinc-700 transition disabled:opacity-50"
+                    className="flex-1 flex justify-center items-center py-2 px-4 border border-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-700 transition disabled:opacity-50"
                     disabled={isProcessing || !canDowngrade}
                 >
                     Downgrade Plan
                 </button>
                 <button 
                     onClick={() => handleAction('reactivate')}
-                    className="flex-1 flex justify-center items-center py-2 px-4 border border-green-500 text-green-600 rounded-lg font-medium hover:bg-green-50 dark:hover:bg-green-900 transition disabled:opacity-50"
+                    className="flex-1 flex justify-center items-center py-2 px-4 border border-amber-500 text-amber-500 rounded-lg font-medium hover:bg-amber-900/30 transition disabled:opacity-50"
                     disabled={isProcessing || !canReactivate}
                 >
                     {isProcessing && canReactivate ? 'Activating...' : 'Reactivate Plan'}
