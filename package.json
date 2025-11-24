@@ -2,6 +2,7 @@
   "dependencies": {
     "apexcharts": "^5.3.6",
     "axios": "^1.13.2",
+    "i": "^0.3.7",
     "react-apexcharts": "^1.8.0"
   }
 }
