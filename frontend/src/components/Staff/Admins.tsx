@@ -1,3 +1,7 @@
+/*
+This component displays a modal listing all FitHub administrators and provides a button for closing the window.
+ */
+
 import { SparkleIcon } from "lucide-react";
 
 const ViewAdmins = ({onClose}: {onClose: () => void}) => {

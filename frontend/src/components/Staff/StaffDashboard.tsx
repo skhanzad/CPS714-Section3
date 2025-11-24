@@ -1,3 +1,10 @@
+/*
+StaffDashboard Description:
+This component serves as the MAIN CONTROL PANEL for STAFF/ADMIN (Team 7), 
+providing access to member and class management, admin viewing, 
+announcements, reporting, and challenge creation, 
+with modal-based actions and refresh handling. */
+
 import { useState, useEffect } from 'react';
 import { admin_supabase } from './supabaseClient';
 import { Plus, Bell, UserIcon, PencilIcon } from 'lucide-react';

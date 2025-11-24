@@ -1,3 +1,11 @@
+/*
+ClassManagement Description:
+This component fetches and displays all classes in a collapsible list, 
+allowing admins to open a detailed modal for editing or deleting a selected class, 
+with refresh handled through Supabase data retrieval.
+ */
+
+
 import { useState, useEffect } from "react";
 import { admin_supabase } from './supabaseClient';
 import ClassDetailsModal from "./ClassDetails";
@@ -12,7 +20,7 @@ const ClassManagement = ({refreshFlag} : {refreshFlag: boolean}) => {
   useEffect(() => {
     fetchAllClasses();
   }, [refreshFlag]);
-  // when triggerrefresh() is called from addclassmodal auto refresh class management
+  // when triggerrefresh() is called from addclassmodal refresh class management component where classes are displayed
 
   const fetchAllClasses = async () => {
     try{

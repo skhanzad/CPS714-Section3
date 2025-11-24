@@ -1,9 +1,12 @@
-
+/*
+AddClassModal Description : This component displays a modal form for creating a new class, validates user 
+input and handles errors, submits the data to Supabase, and shows a success alert 
+before refreshing the class list.
+*/
 
 import { useState } from "react";
 import { admin_supabase } from './supabaseClient';
 import { CheckCircleIcon } from "lucide-react";
-//COMPONENT: ADD CLASS FEAUTURE
 
 const AddClassModal = ({ onClose, refreshClasses }: { onClose: () => void, refreshClasses: () => void }) => {
   const [formData, setFormData] = useState({

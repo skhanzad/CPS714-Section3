@@ -1,9 +1,15 @@
+/*
+ClassDetailsModal Description:
+This component displays a detailed modal for viewing, editing, and deleting a class, 
+including input validation, error handling, and refresh after updates.
+
+*/
+
 import { PencilIcon, CheckCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { admin_supabase } from './supabaseClient';
 
-  
-//componentusage: used when user clickks on a specific class
+
 const ClassDetailsModal = ({ cls, onClose, refreshClasses }: { cls: any, onClose: () => void, refreshClasses : () => void}) => {
   const [editingField, setEditingField] = useState<null | string>(null); //editing field will be things like: class type, instructor fname, instructor lname, time, day and capacity
   const [editValue, setEditValue] = useState("");  

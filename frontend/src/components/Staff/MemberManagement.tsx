@@ -1,6 +1,14 @@
+/*
+MemberManagement Description:
+This component fetches and merges profile and membership data from Supabase, 
+displays a collapsible list of members, and opens a detailed modal for viewing 
+or editing a selected member with full error handling.
+*/
+
+
+
 import { useEffect, useState } from "react";
 import { admin_supabase} from "./supabaseClient";
-import { PencilIcon } from "lucide-react";
 import MemberDetailsModal from "./MemberDetailsModal";
 
 const MemberManagement = () => {
@@ -83,6 +91,7 @@ const MemberManagement = () => {
                   <p className="font-semibold text-yellow-600">Name: {member.full_name}<br/></p>
                   <p className="text-sm text-slate-600">Tier: {member.memberships?.[0]?.tier || 'No subscription'}<br/></p>
                   <p className="text-sm text-slate-600">Account Created At: {member.created_at.slice(0, 10)}<br/></p>
+                  <p className="text-sm text-slate-600">Membership Status: {member.memberships?.[0]?.status || "No membership"}<br/></p>
                 </div>
               </div>
             </button>

@@ -1,3 +1,11 @@
+/*
+MemberDetailsModal Description:
+This component displays a modal for viewing and editing member details, 
+allowing admins to update specific fields with input validation and error handling, 
+then saving changes to Supabase and showing a success alert before refreshing the member list
+*/
+
+
 import { PencilIcon, CheckCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { admin_supabase } from './supabaseClient';
@@ -83,6 +91,9 @@ const MemberDetailsModal = ({cls, onClose, refreshMembers}: {cls: any, onClose: 
                     </div>
                      <div className="bg-gray-700 p-3 rounded-lg justify-between">
                         <span className="font-semibold text-white">Emergency Contact: {cls.emergency_contact}</span> 
+                    </div>
+                    <div className="bg-gray-700 p-3 rounded-lg justify-between">
+                        <span className="font-semibold text-white">Membership Status: {memberData.memberships?.[0]?.status || "None"}</span> 
                     </div>
                 </div>
 
