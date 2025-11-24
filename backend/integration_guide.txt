@@ -1,0 +1,106 @@
+Team 5 — Operations Module Integration Guide
+============================================
+
+This document explains how other sub-projects (Team 2 Dashboard & Team 8 Reporting)
+should interface with Team 5’s backend logic.
+
+--------------------------------------------
+AVAILABLE MODULES
+--------------------------------------------
+
+1. CapacityTracker (Stack-based)
+   - Tracks live gym occupancy
+   - Prevents duplicate check-ins
+   - Provides status: Quiet / Busy / Packed
+   - Maintains timestamped check-in/out history
+
+2. EquipmentWaitlist (Queue-based)
+   - Manages waitlists for gym equipment
+   - FIFO behavior
+
+Both components are exposed through index.py.
+
+--------------------------------------------
+IMPORTING TEAM 5’S SYSTEM
+--------------------------------------------
+
+Example:
+
+from index import (
+    capacity_tracker,
+    equipment_waitlist,
+    get_capacity_status,
+    get_waitlist,
+    get_capacity_history
+)
+
+--------------------------------------------
+USING THE CAPACITY TRACKER
+--------------------------------------------
+
+A) Get current capacity status:
+
+data = get_capacity_status()
+print(data)
+
+Output example:
+{
+  "count": 42,
+  "status": "Busy",
+  "max_capacity": 100
+}
+
+B) Check a user in:
+capacity_tracker.check_in("M001")
+
+C) Check a user out:
+capacity_tracker.check_out("M001")
+
+D) Get full timestamped history (for charts):
+history = get_capacity_history()
+
+
+--------------------------------------------
+USING THE EQUIPMENT WAITLIST
+--------------------------------------------
+
+A) Add a user:
+equipment_waitlist.join_waitlist("Squat Rack", "M001")
+
+B) Remove a user:
+equipment_waitlist.leave_waitlist("Squat Rack", "M001")
+
+C) Get waitlist info:
+info = get_waitlist("Squat Rack")
+print(info)
+
+Output example:
+{
+  "equipment": "Squat Rack",
+  "size": 3,
+  "next": "M002"
+}
+
+
+--------------------------------------------
+NOTES FOR DASHBOARD TEAM (PROJECT 2)
+--------------------------------------------
+
+- No Supabase or database integration is required to use Team 5’s data.
+- Import from index.py and call get_capacity_status() as needed.
+
+
+--------------------------------------------
+NOTES FOR REPORTING TEAM (PROJECT 8)
+--------------------------------------------
+
+Use get_capacity_history() to retrieve timestamped events.
+
+Each event object includes:
+- member_id
+- action ("CHECK_IN" or "CHECK_OUT")
+- timestamp (Python datetime converted to string)
+
+--------------------------------------------
+END OF DOCUMENT
+--------------------------------------------
