@@ -1,10 +1,21 @@
+/*
+MemberManagement Description:
+This component fetches and merges profile and membership data from Supabase, 
+displays a collapsible list of members, and opens a detailed modal for viewing 
+or editing a selected member with full error handling.
+*/
+
+
+
 import { useEffect, useState } from "react";
 import { admin_supabase} from "./supabaseClient";
+import MemberDetailsModal from "./MemberDetailsModal";
 
 const MemberManagement = () => {
   const [members, setMembers] = useState<any[]>([]);
-
   const [open, setOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any | null>(null);
+  const [showMemberModal, setShowMemberModal] = useState(false);
 
   useEffect(() => {
     fetchMembers(); 
@@ -24,7 +35,7 @@ const MemberManagement = () => {
         throw profilesError;
       }
       if (!profilesData){
-        console.log("DATA is NULL: ", {profilesData})
+        console.warn("DATA is NULL: ", {profilesData})
         return;
       }
 
@@ -46,7 +57,8 @@ const MemberManagement = () => {
       console.log(mergeData);
       setMembers(mergeData);
     }catch (error){
-      console.log("error happened while fetching members: ", error);
+      console.error("Error fetching members: ", error);
+      alert("Failed to load members. Please try again.")
     }
   };
 
@@ -62,20 +74,37 @@ const MemberManagement = () => {
 
       {open && (
         <div className="space-y-3 max-h-[600px] overflow-y-auto">
-          {members.map((member) => (
-            <div key={member.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-              <div>
-                <p className="font-semibold text-slate-900">{member.full_name}</p>
-                <p className="text-sm text-slate-600">
-                  {member.memberships?.[0]?.tier || 'No subscription'}
-                </p>
+          {members.map((member, index) => (
+            <button
+              key={member.id} 
+              onClick={()=>{
+                setSelectedMember(member);
+                setShowMemberModal(true);
+              }}
+              className="w-full text-left p-3 bg-slate-50 rounded-lg flex items-center justify-between hover:bg-slate-100 transition"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold">
+                  {index+1}
+                </div>
+                <div>
+                  <p className="font-semibold text-yellow-600">Name: {member.full_name}<br/></p>
+                  <p className="text-sm text-slate-600">Tier: {member.memberships?.[0]?.tier || 'No subscription'}<br/></p>
+                  <p className="text-sm text-slate-600">Account Created At: {member.created_at.slice(0, 10)}<br/></p>
+                  <p className="text-sm text-slate-600">Membership Status: {member.memberships?.[0]?.status || "No membership"}<br/></p>
+                </div>
               </div>
-              <span className="text-sm text-slate-500">
-                {new Date(member.created_at).toLocaleDateString()}
-              </span>
-            </div>
+            </button>
           ))}
         </div>
+      )}
+
+      {showMemberModal && (
+        <MemberDetailsModal
+          cls={selectedMember}
+          onClose={() => { setShowMemberModal(false); setSelectedMember(null);}}
+          refreshMembers={fetchMembers}
+        />
       )}
     </div>
   );

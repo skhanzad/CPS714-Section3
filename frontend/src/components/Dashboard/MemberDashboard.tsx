@@ -1,263 +1,258 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
-import {
-  Calendar,
-  CreditCard,
-  User,
-  TrendingUp,
-  Users,
-  Award,
-  Activity,
-  Settings,
-  Bell,
-  LogOut,
-  Dumbbell,
-  Clock,
-} from 'lucide-react';
-import { ClassBooking } from '../Classes/ClassBooking';
-import { ProfileEditor } from '../Profile/ProfileEditor';
-import { SocialFeed } from '../Social/SocialFeed';
-import { CommunityChallenges } from '../Social/CommunityChallenges';
-import { FacilityTracker } from '../Facility/FacilityTracker';
-import { StaffDashboard } from '../Staff/StaffDashboard';
+/**
+ * Member Dashboard Component:
+ * This component serves as the main dashboard for members, providing access to their profile and main dashboard. 
+ * The dashboard view and profile editor are rendered conditionally based on the active tab.
+ * The base dashbaord view is displayed by default, with an option to switch to the profile editor.
+ * 
+ * The following sub-components are integrated within this dashboard:
+ * - BaseDashboardView: The main dashboard view displaying membership status, upcoming classes, achievements, and class calendar.
+ * - ProfileEditor: A component that allows users to edit their profile information, including their fitness goals.
+ * 
+ * This componenent on its own includes a top banner with navigation buttons, notification button with a dropdown menu, and profile button also with a dropdown menu.
+ * The component fetches user profile data from the "profile" table on Supabase and manages state for active tabs and menus.
+ * React hooks are used for state and effect management.
+ * 
+ * @returns A JSX element representing the Member Dashboard interface.
+ */
 
-type TabType = 'dashboard' | 'classes' | 'social' | 'challenges' | 'facility' | 'profile' | 'staff';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { User, Bell, BellDot, LogOut, Calendar, Pyramid } from 'lucide-react';
+import { GiBiceps, GiCalendar, GiWeight } from 'react-icons/gi';
+import { FaDumbbell } from 'react-icons/fa';
+import { supabase } from '../../lib/supabase';
+import { Database } from '../../lib/supabase';
+import { ProfileEditor } from './ProfileEditor';
+import { BaseDashboardView } from './BaseDashboardView';
+import Notifications from './notifications';
+import { supabaseN } from '../../lib/supabaseNot';
+
+type TabType = 'dashboard' | 'profile' | 'bookclasses' | 'facilities' | 'notifications';
+
+// Define a specific type for the profile object, including the nested subscription data.
+type ProfileWithSubscription = Database['public']['Tables']['profiles']['Row'] & {
+  // membership_subscriptions is returned as an array when selecting relations
+  membership_subscriptions: (Database['public']['Tables']['membership_subscriptions']['Row'] & {
+    membership_tiers: Database['public']['Tables']['membership_tiers']['Row'] | null;
+  })[] | null;
+};
 
 export const MemberDashboard = () => {
-  const { user, profile, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
-  const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [stats, setStats] = useState({ totalClasses: 0, thisMonth: 0, streak: 0 });
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [myProfile, setMyProfile] = useState<ProfileWithSubscription | null>(null);
+  const [loading, setLoading] = useState(true);
+  const HARDCODED_USER_ID = 'b41c76d2-0e38-4dec-8825-b10a0b841664';
+  const [hasActiveNotifications, setHasActiveNotifications] = useState<boolean>(false);
+
 
   useEffect(() => {
-    if (user) {
-      fetchUpcomingBookings();
-      fetchNotifications();
-      fetchStats();
+    if (showProfileMenu && profileButtonRef.current) {
+      const rect = profileButtonRef.current.getBoundingClientRect();
+      // place the menu so its right edge aligns with the button's right edge
+      const menuWidth = 224; // matches minWidth used when rendering
+      setMenuPos({ top: rect.bottom + window.scrollY, left: rect.right - menuWidth + window.scrollX });
     }
-  }, [user]);
+  }, [showProfileMenu]);
 
-  const fetchUpcomingBookings = async () => {
-    const today = new Date().toISOString().split('T')[0];
-    const { data } = await supabase
-      .from('class_bookings')
-      .select('*, class_schedules(*, fitness_classes(*))')
-      .eq('user_id', user?.id)
-      .eq('status', 'confirmed')
-      .gte('class_schedules.scheduled_date', today)
-      .order('class_schedules.scheduled_date', { ascending: true })
-      .limit(5);
+  useEffect(() => {
+    fetchProfileData(HARDCODED_USER_ID);
+  }, []);
 
-    setUpcomingBookings(data || []);
+  // Check whether there are any active notifications (end_time > now)
+  // This effect runs on mount and updates `hasActiveNotifications`.
+  useEffect(() => {
+    const checkActiveNotifications = async () => {
+      try {
+        const now = new Date().toISOString();
+        // Treat notifications as active when end_time is null OR end_time > now
+        const filter = `end_time.is.null,end_time.gt.${now}`;
+        const res = await supabaseN
+          .from('notifications')
+          .select('id', { count: 'exact' })
+          .or(filter)
+          .limit(1);
+
+        const { data, count, error } = res;
+
+        if (error) {
+          console.error('[MemberDashboard] Error checking notifications:', error);
+          setHasActiveNotifications(false);
+          return;
+        }
+
+        const has = (typeof count === 'number') ? (count > 0) : ((data && data.length > 0) ? true : false);
+        setHasActiveNotifications(has);
+      } catch (err) {
+        console.error('Error checking notifications:', err);
+        setHasActiveNotifications(false);
+      }
+    };
+
+    checkActiveNotifications();
+  }, []);
+
+  const fetchProfileData = async (userID: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*, membership_subscriptions(*, membership_tiers(*))')
+        .eq('id', userID)
+        .single();
+
+      if (error) throw error;
+
+      setMyProfile(data);
+    } catch (error: any) {
+      console.error('Error fetching profile:', error.message);
+    }
+    setLoading(false);
   };
 
-  const fetchNotifications = async () => {
-    const { data } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user?.id)
-      .eq('is_read', false)
-      .order('created_at', { ascending: false })
-      .limit(5);
+  /* User data */
+  const subscription = myProfile?.membership_subscriptions?.[0];
+  // The profiles table uses `profile_picture_url` (see `supabase.ts`). Use that field if present.
+  const profile_picture = myProfile?.profile_picture_url || null;
+  const userId = myProfile?.id || '';
 
-    setNotifications(data || []);
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+        Loading Profile...
+      </div>
+    );
+  }
 
-  const fetchStats = async () => {
-    const { data } = await supabase
-      .from('class_bookings')
-      .select('*')
-      .eq('user_id', user?.id)
-      .eq('status', 'attended');
+  // If loading is finished but the profile couldn't be fetched, show an error.
+  if (!myProfile) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-red-400">
+        Error: Could not load user profile. Please ensure that the database is linked properly.
+      </div>
+    );
+  }
 
-    const total = data?.length || 0;
-    const thisMonth = data?.filter((b: any) => {
-      const bookedDate = new Date(b.booked_at);
-      const now = new Date();
-      return bookedDate.getMonth() === now.getMonth() && bookedDate.getFullYear() === now.getFullYear();
-    }).length || 0;
-
-    setStats({ totalClasses: total, thisMonth, streak: Math.min(total, 7) });
-  };
-
-  const subscription = profile?.membership_subscriptions?.[0];
-  const tier = subscription?.membership_tiers;
-
-  const tabs = [
-    { id: 'dashboard' as TabType, label: 'Dashboard', icon: TrendingUp },
-    { id: 'classes' as TabType, label: 'Classes', icon: Calendar },
-    { id: 'social' as TabType, label: 'Social', icon: Users },
-    { id: 'challenges' as TabType, label: 'Challenges', icon: Award },
-    { id: 'facility' as TabType, label: 'Facility', icon: Dumbbell },
-    { id: 'profile' as TabType, label: 'Profile', icon: User },
-    ...(profile?.is_staff ? [{ id: 'staff' as TabType, label: 'Staff Panel', icon: Settings }] : []),
-  ];
+  /* Use initials if profile picture not found */
+  const initials = (myProfile?.full_name || 'U').split(' ').map((p: string) => p[0]).slice(0, 2).join('');
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+    <div className="flex flex-col h-screen bg-gray-900 overflow-hidden">
+      {/* Top Banner */}
+      <header className="bg-gray-800/95">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-2 rounded-lg">
-                <Dumbbell className="w-6 h-6 text-white" />
+              {/* FITHUB LOGO */}
+              <div className="bg-gold-500/90 p-2 rounded-lg">
+                <FaDumbbell className="w-6 h-6 text-gray-900" />
               </div>
-              <span className="text-xl font-bold text-slate-900">FitHub Elite</span>
+              <span className="text-xl font-bold text-gold-400 tracking-tight">FitHub</span>
             </div>
 
-            <div className="flex items-center gap-4">
-              <button className="relative p-2 text-slate-600 hover:text-slate-900 transition">
-                <Bell className="w-5 h-5" />
-                {notifications.length > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <div className="flex items-center gap-3">
+              {/* Section for dashboard and profile buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`p-button rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-gold-500/90 text-gray-900 shadow-lg' : 'general-button-hover'}`}><GiBiceps className="w-4 h-4 inline mr-1" />
+                  Dashboard
+                </button>
+                {/* Send to the profile editor */}
+                <button
+                  onClick={() => setActiveTab('profile')}
+                  className={`p-button button-header ${activeTab === 'profile' ? 'bg-gold-500/90 text-gray-900 shadow-lg' : 'general-button-hover'}`}>
+                  <User className="w-4 h-4 inline mr-1" />
+                  Profile
+                </button>
+                {/* IMPORTANT DISCLAIMER THESE BUTTONS DO NOTHING. THEY ARE PURELY THERE FOR OTHER TEAMS TO ADD THEIR FEATURES */}
+                {/* THESE BUTTONS ARE FOR INTEGRATION AND DO NOT MAKE UP TEAM2s ACTUAL COMPONENT */}
+                <button
+                  className={`p-button button-header ${activeTab === 'facilities' ? 'bg-gold-500/90 text-gray-900 shadow-lg' : 'general-button-hover'}`}> <GiWeight className="w-4 h-4 inline mr-1" /> Facility
+                </button>
+                <button
+                  className={`p-button button-header ${activeTab === 'bookclasses'
+                    ? 'bg-gold-500/90 text-gray-900 shadow-lg'
+                    : 'general-button-hover'}`}>
+                  <Calendar className="w-4 h-4 inline mr-1" />
+                  Book Classes
+                </button>
+              </div>
+
+              {/* Notifications (Again haven't touched this at all) */}
+              <div className="relative">
+                <button
+                  onClick={() => setActiveTab('notifications')}
+                  className="relative p-2 text-gray-400 hover:text-gold-400 transition-all duration-200 hover:bg-gray-700/50 rounded-lg"
+                  title="Notifications"
+                >
+                    {hasActiveNotifications ? (
+                      <BellDot className="w-5 h-5 text-gold-400" />
+                    ) : (
+                      <Bell className="w-5 h-5" />
+                    )}
+                </button>
+              </div>
+
+              {/* Sign drop down and banner */}
+              <div className="relative">
+                {/* Profile button ref used to position the portal dropdown */}
+                <button
+                  ref={(el) => (profileButtonRef.current = el)}
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  onBlur={() => setShowProfileMenu(false)} // This keeps previous behaviour; portal positioning will prevent clipping
+                  className="w-10 h-10 bg-gold-500/90 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm transition-all duration-300 hover:scale-105 hover:border-2 hover:border-gold-500/90 border border-gold-500/70 overflow-hidden"
+                >
+                  {/* If a profile picture is defined then use it */}
+                  {profile_picture ? (
+                    <img src={profile_picture} className="w-full h-full" />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
+                </button>
+
+                {showProfileMenu && profileButtonRef.current && createPortal(
+                  <div
+                    className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden"
+                    style={{
+                      position: 'absolute',
+                      top: menuPos.top,
+                      left: menuPos.left,
+                      minWidth: 224,
+                      zIndex: 2147483647, // very high to ensure front layer
+                    }}
+                  >
+                    <div className="p-4 border-b border-gray-700">
+                      <div className="text-sm font-bold text-gray-100 truncate">{myProfile?.full_name || 'User'}</div>
+                      <div className="text-xs text-gray-400 truncate">{myProfile?.full_name || 'no-email@example.com'}</div>
+                    </div>
+                    <div className="p-2">
+                      <button
+                        onClick={() => alert('Sign out functionality removed.')}
+                        className="w-full flex items-center gap-3 p-2 rounded-lg text-gray-300 hover:bg-gray-700/50 transition-all duration-300"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span className="text-sm font-semibold">Sign Out</span>
+                      </button>
+                    </div>
+                  </div>,
+                  document.body
                 )}
-              </button>
-              <button
-                onClick={signOut}
-                className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-900 transition"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
+              </div>
             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <aside className="lg:w-64 space-y-2">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                    activeTab === tab.id
-                      ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              );
-            })}
-          </aside>
-
-          <main className="flex-1">
-            {activeTab === 'dashboard' && (
-              <div className="space-y-6">
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-6 text-white">
-                  <h1 className="text-2xl font-bold mb-2">Welcome back, {profile?.full_name}!</h1>
-                  <p className="text-blue-100">
-                    {tier?.name} Member • {stats.thisMonth} classes this month
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-slate-600">Total Classes</span>
-                      <Activity className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-slate-900">{stats.totalClasses}</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-slate-600">This Month</span>
-                      <Calendar className="w-5 h-5 text-cyan-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-slate-900">{stats.thisMonth}</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-slate-600">Day Streak</span>
-                      <Award className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-slate-900">{stats.streak}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-blue-600" />
-                      Upcoming Classes
-                    </h3>
-                    {upcomingBookings.length === 0 ? (
-                      <p className="text-slate-500">No upcoming bookings</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {upcomingBookings.map((booking: any) => (
-                          <div
-                            key={booking.id}
-                            className="flex items-start justify-between p-3 bg-slate-50 rounded-lg"
-                          >
-                            <div>
-                              <p className="font-semibold text-slate-900">
-                                {booking.class_schedules.fitness_classes.name}
-                              </p>
-                              <p className="text-sm text-slate-600 flex items-center gap-1 mt-1">
-                                <Clock className="w-4 h-4" />
-                                {new Date(booking.class_schedules.scheduled_date).toLocaleDateString()} at{' '}
-                                {booking.class_schedules.start_time}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                      <CreditCard className="w-5 h-5 text-cyan-600" />
-                      Membership Status
-                    </h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Plan</span>
-                        <span className="font-semibold text-slate-900">{tier?.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Status</span>
-                        <span className="px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
-                          {subscription?.status}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Renewal</span>
-                        <span className="font-semibold text-slate-900">
-                          {subscription?.renewal_date
-                            ? new Date(subscription.renewal_date).toLocaleDateString()
-                            : 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Monthly Price</span>
-                        <span className="font-semibold text-slate-900">${tier?.price_monthly}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'classes' && <ClassBooking />}
-            {activeTab === 'social' && <SocialFeed />}
-            {activeTab === 'challenges' && <CommunityChallenges />}
-            {activeTab === 'facility' && <FacilityTracker />}
-            {activeTab === 'profile' && <ProfileEditor />}
-            {activeTab === 'staff' && profile?.is_staff && <StaffDashboard />}
-          </main>
+      {/* Main Page - Swaps between Base Dashboard View and Prodile Editor*/}
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {activeTab === 'dashboard' && (<BaseDashboardView subscription={subscription} userId={userId} sendToProfile={() => setActiveTab('profile')} />)}
+          {activeTab === 'profile' && <ProfileEditor profile={myProfile} returnProfileData={setMyProfile} />}
+          {activeTab === 'notifications' && <Notifications />}
         </div>
-      </div>
+      </main>
     </div>
   );
 };

@@ -1,21 +1,16 @@
+# repository layer for data_service.py, for Reporting & Analytics Dashboard
+
 from supabase import create_client, Client
-from collections import Counter
-from datetime import datetime, date
 
 url ="https://zgughkuatbflarqipgyj.supabase.co"
 key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpndWdoa3VhdGJmbGFycWlwZ3lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4Nzk5NDAsImV4cCI6MjA3ODQ1NTk0MH0.fFCkPXPtYPrUPujp-7M1XuZRbfbUaV5juwNYOR1kTs0"
-
-#tables:
-
-# class <- class_name, total_bookings, time (retrieved as string?)
-# memberships   <- current_period_start, current_period_end timestamps (string format "2025-11-16T20:09:46.539436+00:00")
-# profiles <- probably not useful
 
 supabase: Client = create_client(url, key)
 
 def getNumberActiveMembersFromRepo():
     supabase: Client = create_client(url, key)
 
+    # get a list of dictionaries describing all active memberships
     response = (
         supabase.table("memberships")
         .select("*", count = "exact")
@@ -28,6 +23,7 @@ def getNumberActiveMembersFromRepo():
 def getMemberTypesDataFromRepo():
     supabase: Client = create_client(url, key)
 
+    # get the tiers of all active memberships
     response = (
         supabase.table("memberships")
         .select("tier")
@@ -40,6 +36,7 @@ def getMemberTypesDataFromRepo():
 def getSignupsAndCancellationsDataFromRepo():
     supabase: Client = create_client(url, key)
 
+    # get the created at and subscription end times of all memberships
     response = (
         supabase.table("memberships")
         .select("created_at, current_period_end")
@@ -51,6 +48,7 @@ def getSignupsAndCancellationsDataFromRepo():
 def getMembershipDataFromRepo():
     supabase: Client = create_client(url, key)
 
+    # get the created at and subscription end times of all memberships
     response = (
         supabase.table("memberships")
         .select("created_at, current_period_end")
@@ -62,6 +60,7 @@ def getMembershipDataFromRepo():
 def getClassNamesFromRepo():
     supabase: Client = create_client(url, key)
 
+    # get a list of class names and their total bookings
     response = (
         supabase.table("class")
         .select("class_name, total_bookings")
@@ -73,6 +72,7 @@ def getClassNamesFromRepo():
 def getClassTimesFromRepo():
     supabase: Client = create_client(url, key)
 
+    # get a list of class times and their total bookings
     response = (
         supabase.table("class")
         .select("time, total_bookings")

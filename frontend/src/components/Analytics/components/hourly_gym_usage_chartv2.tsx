@@ -1,3 +1,5 @@
+// Recorded gym occupancy each hour
+
 import React, { useEffect, useState } from 'react';
 import { getGymOccupancyData } from '../analytics_service';
 import ReactApexChart from "react-apexcharts";

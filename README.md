@@ -12,4 +12,4 @@
 3. Create a virtual environment by running the command "python -m venv .venv"
 4. Activate the virtual environment by running the command ".venv/Scripts/activate" or using other files in the .venv/Scripts folder
 5. Run "pip install -r requirements.txt"
-6. Run "fastapi dev main.py" to start the backend
+6. Run "uvicorn main:app" to start the backend

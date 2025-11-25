@@ -1,8 +1,12 @@
+# service for data_router.py, for Reporting & Analytics Dashboard
+
+from collections import Counter
 from datetime import datetime, date, timedelta
-from data.data_repo import *
+from .data_repo import *
 
 def getMembershipData():
-
+    
+    # data received is a list of dictionaries containing iso format date created, and optional iso format date the membership ends
     data = getMembershipDataFromRepo()
 
     signup_dates = []
@@ -10,13 +14,14 @@ def getMembershipData():
 
     today = date.today()
 
+    # get data from list of dictionaries
     for row in data:
         # convert to datetime and then date
         signup_dates.append(datetime.fromisoformat(row['created_at']).date())
 
         if row['current_period_end'] != None:
             # only count memberships that have ended, not ones that will end
-            if (datetime.fromisoformat(row['current_period_end']) < (today + timedelta(days = 1))):
+            if (datetime.fromisoformat(row['current_period_end']).date() < (today + timedelta(days = 1))):
                 cancellation_dates.append(datetime.fromisoformat(row['current_period_end']).date())
 
     # sort to get the earliest date
@@ -50,6 +55,8 @@ def getMembershipData():
 
     total_memberships = 0
 
+    # iterate through all rows and lists of signups / cancellations to sum up the total number of members on a given date
+    # total number of members on day = current running total + new signups - cancellations
     for row in memberships_data:
         for signup in signups_data:
             if row[0] == signup[0]:
@@ -57,7 +64,7 @@ def getMembershipData():
                 row[1] = total_memberships
                 signups_data.pop(0)
 
-                # use break because signups_data and cancellations_data were dictionaries where the key is the day and the value is the number of signups / cancellations on that day
+                # break because signups_data and cancellations_data are dictionaries where the key is the day and the value is the number of signups / cancellations on that day, so only one signup in signups_data will match
                 break
         
         for cancellation in cancellations_data:
@@ -67,6 +74,7 @@ def getMembershipData():
                 cancellations_data.pop(0)
                 break
 
+    # # dummy data for illustration purposes:
     # memberships_data = [
     #     ["2024-01-01", 50],
     #     ["2024-02-01", 75],
@@ -94,7 +102,7 @@ def getSignupsAndCancellationsData():
 
         if row['current_period_end'] != None:
             # only count memberships that have ended, not ones that will end
-            if (datetime.fromisoformat(row['current_period_end']) < (today + timedelta(days = 1))):
+            if (datetime.fromisoformat(row['current_period_end']).date() < (today + timedelta(days = 1))):
                 cancellation_dates.append(datetime.fromisoformat(row['current_period_end']).date())
 
     # sort to get the earliest date
@@ -145,6 +153,7 @@ def getSignupsAndCancellationsData():
 
     cancellations_data = [list(t) for t in list(counter.items())]
 
+    # # dummy data for illustration purposes:
     # signups_data = [
     #     ["2025-01", 50],
     #     ["2025-02", 75],
@@ -154,7 +163,6 @@ def getSignupsAndCancellationsData():
     #     ["2025-06", 90],
     #     ["2025-07", 110],
     # ]
-
     # cancellations_data = [
     #     ["2025-01", 5],
     #     ["2025-02", 7],
@@ -173,9 +181,11 @@ def getClassPopularityData():
 
     class_popularity_data = []
 
+    # convert dictionary of class names and total bookings to list
     for row in data:
         class_popularity_data.append([row["class_name"], row["total_bookings"]])
 
+    # # dummy data for illustration purposes:
     # class_popularity_data = [
     #     ["Yoga", 15],
     #     ["Pilates", 12],
@@ -187,7 +197,7 @@ def getClassPopularityData():
     #     ["Yoga", 50],
     # ]
 
-    # combine together all the same class names 
+    # combine together all the same class names using a Counter dictionary
     counter = Counter()
     for class_name, class_count in class_popularity_data:
         counter[class_name] += class_count
@@ -195,15 +205,18 @@ def getClassPopularityData():
     # list(counter.items()) is a list of tuples so we convert to a list of lists
     added_together_data = [list(t) for t in list(counter.items())]
 
+    # sort on the second item in each list which is the number of people enrolled in a class
     added_together_data.sort(key=lambda x: x[1], reverse=True)
 
     top_class_names = []
     top_class_counts = []
 
+    # split up the list of lists into two lists for use by charts
     for i in range(len(added_together_data)):
         top_class_names.append(added_together_data[i][0])
         top_class_counts.append(added_together_data[i][1])
 
+    # truncate to top 10
     return [top_class_names[:10], top_class_counts[:10]]
 
 def getClassTimesPopularityData():
@@ -216,6 +229,7 @@ def getClassTimesPopularityData():
         # additional [:-3] to remove seconds from the time
         class_popularity_data.append([row["time"][:-3], row["total_bookings"]])
 
+    # # dummy data for illustration purposes:
     # class_popularity_data = [
     #     ["10:00", 20],
     #     ["11:00", 15],
@@ -244,9 +258,11 @@ def getClassTimesPopularityData():
         top_class_times.append(added_together_data[i][0])
         top_class_counts.append(added_together_data[i][1])
 
+    # truncate to top 10
     return [top_class_times[:10], top_class_counts[:10]]
 
 def getGymOccupancyData():
+    # dummy data as no database tables were provided
     occupancy_data = [
         ["2025-01-01 06:00", 20],
         ["2025-01-01 07:00", 35],
@@ -274,6 +290,7 @@ def getGymOccupancyData():
     return occupancy_data
 
 def getHourlyUsageData():
+    # dummy data as no database tables were provided
     hourly_usage_data = [
         ["2025-01-01 06:00", 20],
         ["2025-01-01 07:00", 35],
@@ -300,13 +317,17 @@ def getHourlyUsageData():
 
     format_string = "%Y-%m-%d %H:%M"
 
+    # convert string to datetime
     converted_datetime_dates = [datetime.strptime(row[0], format_string) for row in hourly_usage_data]
+
+    # take above values and convert to day of week and time
     converted_days_of_week_and_times = [date.strftime("%A %H:%M") for date in converted_datetime_dates]
 
     recombined_hourly_usage_data = [[converted_days_of_week_and_times[i], hourly_usage_data[i][1]] for i in range(len(hourly_usage_data))]
 
     summed_data = {}
 
+    # add together all the same days of weeks and times
     for row in recombined_hourly_usage_data:
         key = row[0]
         value = row[1]
@@ -315,7 +336,11 @@ def getHourlyUsageData():
         else:
             summed_data[key] = value
 
+    # convert dictionary to list of lists
     converted_hourly_usage_data = [[key, value] for key, value in summed_data.items()]
+
+    # convert days of week to known dates with the same day of the week
+    # this is for chart display, where we can display the day of the week instead of the known date
     for row in converted_hourly_usage_data:
         row[0] = row[0].replace("Sunday", "2025-11-02")
         row[0] = row[0].replace("Monday", "2025-11-03")
@@ -325,9 +350,8 @@ def getHourlyUsageData():
         row[0] = row[0].replace("Friday", "2025-11-07")
         row[0] = row[0].replace("Saturday", "2025-11-08")
 
-    total = sum(row[1] for row in converted_hourly_usage_data)
-
     # Convert number of people in gym to percentages
+    total = sum(row[1] for row in converted_hourly_usage_data)   
     final_hourly_usage_data = [[row[0], round(row[1] / total * 100, 2)] for row in converted_hourly_usage_data]
 
     return final_hourly_usage_data
@@ -335,12 +359,14 @@ def getHourlyUsageData():
 def getNumberActiveMembers():
     data = getNumberActiveMembersFromRepo()
 
+    # simple count of a list
     total_members = len(data)
 
     return total_members
     
 def getMemberTypesData():
 
+    # list of dictionaries, with 1 dictionary having the tier information of 1 active member
     data = getMemberTypesDataFromRepo()
 
     tiers = []
@@ -348,6 +374,7 @@ def getMemberTypesData():
     for row in data:
         tiers.append(row['tier'])
 
+    # use this to get dictionary counts of tiers
     tier_counts = Counter(tiers)
 
     tiersList = []

@@ -1,3 +1,5 @@
+// shows number of memberships day-by-day
+
 import React, { useEffect, useState } from 'react';
 import { getMembershipData } from '../analytics_service';
 import ReactApexChart from "react-apexcharts";
@@ -123,8 +125,6 @@ export const MembershipChartv2: React.FC = () => {
                 }
               },
             },
-          
-          
         };
 
     return (
@@ -134,9 +134,11 @@ export const MembershipChartv2: React.FC = () => {
                     (chartData.length > 0) &&
                     <div id="wrapper">
                         <div id="chart-line2">
+                            {/* @ts-expect-error */}
                             <ReactApexChart options={chartInfo.options} series={chartInfo.series} type="line" height={230} />
                         </div>
                         <div id="chart-line">
+                            {/* @ts-expect-error */}
                             <ReactApexChart options={chartInfo.optionsLine} series={chartInfo.seriesLine} type="area" height={130} />
                         </div>
                     </div>

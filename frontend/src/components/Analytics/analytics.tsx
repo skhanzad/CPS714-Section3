@@ -1,3 +1,5 @@
+// Reporting and Analytics Dashboard, containing all of the charts and arranging them as they will appear in the Staff Admin Dashboard
+
 import React from 'react';
 import SignupsCancellationsChart from './components/signups_cancellations_chart';
 import MostPopularChart from './components/most_popular_chart';
@@ -11,18 +13,17 @@ import Card from './components/Card';
 
 export const Analytics: React.FC = () => {
     return (
-        <div className="w-full p-6 bg-slate-800 text-slate-100 rounded-lg border-2 border-[#ca8a04]">
-            <div className="max-w-7xl mx-auto space-y-6">
+        <div className="w-full p-14 pt-8 bg-slate-800 text-slate-100 rounded-lg border-2 border-[#ca8a04]">
+            <div className="mx-auto space-y-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl md:text-3xl font-bold text-amber-300">Reporting & Analytics</h1>
                     <div className="text-sm text-slate-300">Membership signups, popular classes, and gym activity</div>
                 </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
-                            <div className="min-h-[260px]">
-                                <SignupsCancellationsChart />
-                            </div>
+                            <SignupsCancellationsChart />
                         </Card>
 
                     </div>

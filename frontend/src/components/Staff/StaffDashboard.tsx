@@ -1,3 +1,10 @@
+/*
+StaffDashboard Description:
+This component serves as the MAIN CONTROL PANEL for STAFF/ADMIN (Team 7), 
+providing access to member and class management, admin viewing, 
+announcements, reporting, and challenge creation, 
+with modal-based actions and refresh handling. */
+
 import { useState, useEffect } from 'react';
 import { admin_supabase } from './supabaseClient';
 import { Plus, Bell, UserIcon, PencilIcon } from 'lucide-react';
@@ -7,12 +14,16 @@ import ReportsAnalytics from './ReportsAnalytics';
 import ViewAdmins from './Admins';
 import AddClassModal from './AddClass';
 import ClassManagement from './ClassManagement';
+import CreateChallengePage from './CreateChallenge';
+import NotificationSend from './sendNotifications';
+
 
 export const StaffDashboard = () => {
 
   const [showViewAdmins, setshowViewAdmins] = useState(false); //hide all modals (only open on click)
   const [showAddClass, setShowAddClass] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(false);
+  const [showCreateChallenge, setShowCreateChallenge] = useState(false);
   const [refreshFlag, setRefreshFlag] = useState(false);
   const triggerRefresh = () => setRefreshFlag((prev) => !prev)
 
@@ -46,6 +57,14 @@ export const StaffDashboard = () => {
             <Bell className="w-4 h-4" />
             Announce
           </button>
+          {/*Create Challenge button*/}
+          <button
+            onClick={() => setShowCreateChallenge(true)} //update state
+            className="px-4 py-2 bg-yellow-500 text-black rounded-lg font-semibold hover:bg-yellow-500 transition flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Create Challenge
+          </button> 
         </div>
       </div>
 
@@ -58,6 +77,8 @@ export const StaffDashboard = () => {
       </div>
       {showViewAdmins && <ViewAdmins onClose={() => setshowViewAdmins(false)}/>} 
       {showAddClass && <AddClassModal onClose={() => setShowAddClass(false)} refreshClasses={triggerRefresh} />}
+      {showCreateChallenge && <CreateChallengePage onClose={() => setShowCreateChallenge(false)} refreshClasses={triggerRefresh} />}
+      {showAnnouncement && <NotificationSend onClose={() => setShowAnnouncement(false)} />}
     </div>
   );
 };
